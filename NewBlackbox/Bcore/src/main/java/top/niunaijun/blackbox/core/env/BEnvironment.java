@@ -1,6 +1,7 @@
 package top.niunaijun.blackbox.core.env;
 
 import android.os.Environment;
+import android.util.Log;
 
 import org.lsposed.lsparanoid.Obfuscate;
 import java.io.File;
@@ -24,12 +25,31 @@ public class BEnvironment {
     public static File EMPTY_JAR = new File(getCacheDir(), "empty.apk");
 
     public static void load() {
-        FileUtils.mkdirs(sVirtualRoot);
-        FileUtils.mkdirs(sExternalVirtualRoot);
-        FileUtils.mkdirs(getSystemDir());
-        FileUtils.mkdirs(getCacheDir());
-        FileUtils.mkdirs(getProcDir());
-        FileUtils.mkdirs(getExternalUserDir(0));
+        mkdirsChecked(sVirtualRoot, "sVirtualRoot");
+        mkdirsChecked(sExternalVirtualRoot, "sExternalVirtualRoot");
+        mkdirsChecked(getSystemDir(), "systemDir");
+        mkdirsChecked(getCacheDir(), "cacheDir");
+        mkdirsChecked(getProcDir(), "procDir");
+        mkdirsChecked(getAppRootDir(), "appRootDir");
+        mkdirsChecked(getUserDir(0), "userDir0");
+        mkdirsChecked(getExternalUserDir(0), "externalUserDir0");
+    }
+
+    private static void mkdirsChecked(File dir, String label) {
+        if (dir == null) {
+            Log.e("BEnvironment", "load: " + label + " is null!");
+            return;
+        }
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            if (!created && !dir.exists()) {
+                Log.e("BEnvironment", "load: Failed to create " + label + ": " + dir.getAbsolutePath());
+            } else {
+                Log.d("BEnvironment", "load: Created " + label + ": " + dir.getAbsolutePath());
+            }
+        } else {
+            Log.d("BEnvironment", "load: Already exists " + label + ": " + dir.getAbsolutePath());
+        }
     }
 
     public static File getVirtualRoot() {

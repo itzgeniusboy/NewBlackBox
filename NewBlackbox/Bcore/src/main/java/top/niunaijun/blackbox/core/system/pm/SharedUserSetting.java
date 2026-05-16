@@ -43,7 +43,12 @@ public final class SharedUserSetting implements Parcelable {
     public static void saveSharedUsers() {
         Parcel parcel = Parcel.obtain();
         FileOutputStream fileOutputStream = null;
-        AtomicFile atomicFile = new AtomicFile(BEnvironment.getSharedUserConf());
+        java.io.File confFile = BEnvironment.getSharedUserConf();
+        java.io.File parentDir = confFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+        AtomicFile atomicFile = new AtomicFile(confFile);
         try {
             parcel.writeMap(sSharedUsers);
 

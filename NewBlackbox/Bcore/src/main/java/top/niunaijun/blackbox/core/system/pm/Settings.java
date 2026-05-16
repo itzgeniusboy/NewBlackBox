@@ -114,7 +114,12 @@ import top.niunaijun.blackbox.utils.compat.PackageParserCompat;
     private void saveUidLP() {
         Parcel parcel = Parcel.obtain();
         FileOutputStream fileOutputStream = null;
-        AtomicFile atomicFile = new AtomicFile(BEnvironment.getUidConf());
+        File uidConf = BEnvironment.getUidConf();
+        File parentDir = uidConf.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+        AtomicFile atomicFile = new AtomicFile(uidConf);
         try {
             Set<String> pkgName = mPackages.keySet();
             for (String s : new HashSet<>(mAppIds.keySet())) {
@@ -178,6 +183,10 @@ import top.niunaijun.blackbox.utils.compat.PackageParserCompat;
             File appRootDir = BEnvironment.getAppRootDir();
             FileUtils.mkdirs(appRootDir);
             File[] apps = appRootDir.listFiles();
+            if (apps == null) {
+                Slog.w(TAG, "scanPackage: appRootDir.listFiles() returned null, dir=" + appRootDir.getAbsolutePath() + ", exists=" + appRootDir.exists());
+                return;
+            }
             for (File app : apps) {
                 if (!app.isDirectory()) {
                     continue;

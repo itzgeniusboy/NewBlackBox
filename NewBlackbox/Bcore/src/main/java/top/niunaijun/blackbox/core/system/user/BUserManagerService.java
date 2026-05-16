@@ -112,7 +112,12 @@ public class BUserManagerService extends IBUserManagerService.Stub implements IS
 
     private void saveUserInfoLocked() {
         Parcel parcel = Parcel.obtain();
-        AtomicFile atomicFile = new AtomicFile(BEnvironment.getUserInfoConf());
+        File userInfoConf = BEnvironment.getUserInfoConf();
+        File parentDir = userInfoConf.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+        AtomicFile atomicFile = new AtomicFile(userInfoConf);
         FileOutputStream fileOutputStream = null;
         try {
             ArrayList<BUserInfo> bUsers = new ArrayList<>(mUsers.values());

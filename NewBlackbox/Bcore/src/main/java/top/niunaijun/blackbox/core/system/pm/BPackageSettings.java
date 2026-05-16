@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AtomicFile;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,7 +101,12 @@ public class BPackageSettings implements Parcelable {
     public boolean save() {
         synchronized (this) {
             Parcel parcel = Parcel.obtain();
-            AtomicFile atomicFile = new AtomicFile(BEnvironment.getPackageConf(pkg.packageName));
+            File confFile = BEnvironment.getPackageConf(pkg.packageName);
+            File parentDir = confFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+            AtomicFile atomicFile = new AtomicFile(confFile);
             FileOutputStream fileOutputStream = null;
             try {
                 writeToParcel(parcel, 0);
