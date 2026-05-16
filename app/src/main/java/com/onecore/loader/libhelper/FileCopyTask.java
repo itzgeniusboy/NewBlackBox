@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Locale;
+import android.util.Log;
 import top.niunaijun.blackbox.BlackBoxCore;
 import top.niunaijun.blackbox.core.env.BEnvironment;
 import org.lsposed.lsparanoid.Obfuscate;
@@ -78,7 +79,9 @@ public class FileCopyTask {
     public boolean isObbCopied(String packageName) {
         File destDir = getExternalObbDir(packageName);
         File[] files = destDir.listFiles();
-        return destDir.exists() && destDir.isDirectory() && files != null && files.length > 0;
+        boolean result = destDir.exists() && destDir.isDirectory() && files != null && files.length > 0;
+        Log.d("OBBCopy", "isObbCopied(" + packageName + "): " + result + ", path: " + destDir.getAbsolutePath() + ", exists: " + destDir.exists() + ", files: " + (files != null ? files.length : "null"));
+        return result;
     }
 
     public boolean isDataCopied(String packageName) {
@@ -347,15 +350,22 @@ public class FileCopyTask {
     }
 
     public void copyObbFolderAsync(final String packageName, final CopyCallback callback) {
+        Log.d("OBBCopy", "copyObbFolderAsync called for: " + packageName);
+        Log.d("OBBCopy", "isExternalStorageManager: " + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? Environment.isExternalStorageManager() : "N/A (pre-R)"));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+            Log.e("OBBCopy", "MANAGE_EXTERNAL_STORAGE permission missing! Requesting...");
             requestStoragePermission();
+            if (callback != null) callback.onCopyCompleted(false);
             return;
         }
 
         File sourceDataDirCheck = new File(Environment.getExternalStorageDirectory(), "Android/data/" + packageName);
         boolean dataSourceAvailable = sourceDataDirCheck.exists();
 
-        if (isObbCopied(packageName) && (!dataSourceAvailable || isDataCopied(packageName))) {
+        boolean obbAlreadyCopied = isObbCopied(packageName);
+        Log.d("OBBCopy", "isObbCopied: " + obbAlreadyCopied + ", dataSourceAvailable: " + dataSourceAvailable);
+        if (obbAlreadyCopied && (!dataSourceAvailable || isDataCopied(packageName))) {
+            Log.d("OBBCopy", "OBB already copied, skipping copy");
             if (callback != null) callback.onCopyCompleted(true);
             return;
         }
@@ -386,14 +396,30 @@ public class FileCopyTask {
                 File destDataDir = getExternalDataDir(packageName);
                 copiedToPath = destObbDir.getAbsolutePath();
 
+                Log.d("OBBCopy", "=== OBB Copy Debug ===");
+                Log.d("OBBCopy", "Package: " + packageName);
+                Log.d("OBBCopy", "Source OBB: " + sourceObbDir.getAbsolutePath());
+                Log.d("OBBCopy", "Source exists: " + sourceObbDir.exists() + ", canRead: " + sourceObbDir.canRead());
+                Log.d("OBBCopy", "Dest OBB: " + destObbDir.getAbsolutePath());
+                Log.d("OBBCopy", "Dest exists: " + destObbDir.exists());
+                Log.d("OBBCopy", "Dest parent: " + destObbDir.getParentFile().getAbsolutePath());
+                Log.d("OBBCopy", "Dest parent exists: " + destObbDir.getParentFile().exists());
+                Log.d("OBBCopy", "isExternalStorageManager: " + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? Environment.isExternalStorageManager() : "N/A (pre-R)"));
+
                 if (!sourceObbDir.exists() || !sourceObbDir.canRead()) {
-                    errorMsg = "Source OBB not found or unreadable!";
+                    errorMsg = "Source OBB not found or unreadable! Path: " + sourceObbDir.getAbsolutePath();
+                    Log.e("OBBCopy", errorMsg);
                     return false;
                 }
 
-                if (!destObbDir.exists() && !destObbDir.mkdirs()) {
-                    errorMsg = "Destination OBB folder creation failed!";
-                    return false;
+                if (!destObbDir.exists()) {
+                    boolean mkdirsResult = destObbDir.mkdirs();
+                    Log.d("OBBCopy", "mkdirs result: " + mkdirsResult + " for: " + destObbDir.getAbsolutePath());
+                    if (!mkdirsResult) {
+                        errorMsg = "Destination OBB folder creation failed! Path: " + destObbDir.getAbsolutePath();
+                        Log.e("OBBCopy", errorMsg);
+                        return false;
+                    }
                 }
 
                 File[] obbFiles = sourceObbDir.listFiles();

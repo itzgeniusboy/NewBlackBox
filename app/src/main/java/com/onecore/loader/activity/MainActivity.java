@@ -237,6 +237,7 @@ public class MainActivity extends Activity {
         final FileCopyTask fileCopyTask = new FileCopyTask(MainActivity.get());
 
         boolean isInstalled = getInstallationStatus(packageName);
+        android.util.Log.d("OBBCopy", "handleInstallUninstall: pkg=" + packageName + ", isInstalled=" + isInstalled);
 
         if (isInstalled) {
             ApkEnv.getInstance().unInstallApp(packageName);

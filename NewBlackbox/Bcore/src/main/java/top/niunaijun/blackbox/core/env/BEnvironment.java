@@ -1,5 +1,8 @@
 package top.niunaijun.blackbox.core.env;
 
+import android.os.Environment;
+import android.util.Log;
+
 import org.lsposed.lsparanoid.Obfuscate;
 import java.io.File;
 import java.util.Locale;
@@ -12,17 +15,41 @@ import top.niunaijun.blackbox.utils.FileUtils;
 @Obfuscate
 public class BEnvironment {
     private static final File sVirtualRoot = new File(BlackBoxCore.getContext().getCacheDir().getParent(), "blackbox");
-    private static final File sExternalVirtualRoot = BlackBoxCore.getContext().getExternalFilesDir("blackbox");
+    private static final File sExternalVirtualRoot;
+
+    static {
+        sExternalVirtualRoot = new File(Environment.getExternalStorageDirectory(), "NewBlackBox");
+    }
 
     public static File JUNIT_JAR = new File(getCacheDir(), "junit.apk");
     public static File EMPTY_JAR = new File(getCacheDir(), "empty.apk");
 
     public static void load() {
-        FileUtils.mkdirs(sVirtualRoot);
-        FileUtils.mkdirs(sExternalVirtualRoot);
-        FileUtils.mkdirs(getSystemDir());
-        FileUtils.mkdirs(getCacheDir());
-        FileUtils.mkdirs(getProcDir());
+        mkdirsChecked(sVirtualRoot, "sVirtualRoot");
+        mkdirsChecked(sExternalVirtualRoot, "sExternalVirtualRoot");
+        mkdirsChecked(getSystemDir(), "systemDir");
+        mkdirsChecked(getCacheDir(), "cacheDir");
+        mkdirsChecked(getProcDir(), "procDir");
+        mkdirsChecked(getAppRootDir(), "appRootDir");
+        mkdirsChecked(getUserDir(0), "userDir0");
+        mkdirsChecked(getExternalUserDir(0), "externalUserDir0");
+    }
+
+    private static void mkdirsChecked(File dir, String label) {
+        if (dir == null) {
+            Log.e("BEnvironment", "load: " + label + " is null!");
+            return;
+        }
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            if (!created && !dir.exists()) {
+                Log.e("BEnvironment", "load: Failed to create " + label + ": " + dir.getAbsolutePath());
+            } else {
+                Log.d("BEnvironment", "load: Created " + label + ": " + dir.getAbsolutePath());
+            }
+        } else {
+            Log.d("BEnvironment", "load: Already exists " + label + ": " + dir.getAbsolutePath());
+        }
     }
 
     public static File getVirtualRoot() {
@@ -74,7 +101,7 @@ public class BEnvironment {
     }
 
     public static File getExternalUserDir(int userId) {
-        return new File(sExternalVirtualRoot, String.format(Locale.CHINA, "storage/emulated/%d/", userId));
+        return new File(String.format(Locale.CHINA, "/storage/emulated/%d/SdCard/", userId));
     }
 
     public static File getUserDir(int userId) {

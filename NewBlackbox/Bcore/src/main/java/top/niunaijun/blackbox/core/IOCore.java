@@ -5,9 +5,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.os.Process;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.util.HashMap;
@@ -135,19 +135,39 @@ public class IOCore {
 
             if (BlackBoxCore.getContext().getExternalCacheDir() != null && context.getExternalCacheDir() != null) {
                 File external = BEnvironment.getExternalUserDir(BlackBoxCore.getUserId());
-                String sdcardPath = String.format("/storage/emulated/%d", systemUserId);
-                String androidDir = sdcardPath + "/Android";
-
-                
-                rule.put("/sdcard", external.getAbsolutePath());
-                rule.put(sdcardPath, external.getAbsolutePath());
-                rule.put("/sdcard/Android/obb", external.getAbsolutePath() + "/Android/obb");
+                File sdcardAndroidFile = new File(android.os.Environment.getExternalStorageDirectory(), "Android");
+                String sdcardPath = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+                String androidDir = String.format("/storage/emulated/%d/Android", systemUserId);
+                if (!sdcardAndroidFile.exists()) {
+                    sdcardAndroidFile = new File(androidDir);
+                }
+                if (sdcardAndroidFile.exists()) {
+                    File[] childDirs = sdcardAndroidFile.listFiles(pathname -> pathname.isDirectory());
+                    if (childDirs != null) {
+                        for (File childDir : childDirs) {
+                            Log.d(TAG, childDir.getAbsolutePath());
+                            rule.put(
+                                    sdcardPath + "/Android/" + childDir.getName(),
+                                    external.getAbsolutePath() + "/Android/" + childDir.getName());
+                            rule.put(
+                                    androidDir + "/" + childDir.getName(),
+                                    external.getAbsolutePath() + "/Android/" + childDir.getName());
+                        }
+                    } else {
+                        rule.put(sdcardPath + "/Android", external.getAbsolutePath() + "/Android");
+                        rule.put(androidDir, external.getAbsolutePath() + "/Android");
+                    }
+                } else {
+                    rule.put(sdcardPath + "/Android", external.getAbsolutePath() + "/Android");
+                    rule.put(androidDir, external.getAbsolutePath() + "/Android");
+                }
+                rule.put(sdcardPath + "/Android/obb", external.getAbsolutePath() + "/Android/obb");
                 rule.put(androidDir + "/obb", external.getAbsolutePath() + "/Android/obb");
-                rule.put("/sdcard/Android/data", external.getAbsolutePath() + "/Android/data");
+                rule.put(sdcardPath + "/Android/data", external.getAbsolutePath() + "/Android/data");
                 rule.put(androidDir + "/data", external.getAbsolutePath() + "/Android/data");
 
-                blackRule.add("/sdcard/Pictures");
                 blackRule.add(sdcardPath + "/Pictures");
+                blackRule.add(String.format("/storage/emulated/%d/Pictures", systemUserId));
             }
             if (BlackBoxCore.get().isHideRoot()) {
                 hideRoot(rule);

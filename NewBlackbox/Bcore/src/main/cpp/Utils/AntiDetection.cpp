@@ -43,8 +43,10 @@ static const char* blocked_files[] = {
     "/data/data/com.dual.dualspace",
     "/data/data/com.ludashi.superboost",
     "/data/data/top.niunaijun.blackboxa",
-    "/blackbox",
-    "/virtual",
+    // NOTE: "/blackbox" and "/virtual" were removed — they blocked the SDK's
+    // own internal paths (e.g. /data/user/0/com.onecore.loader/blackbox/)
+    // causing File.exists(), File.listFiles(), fopen() etc. to fail via the
+    // hooked stat/access/opendir returning ENOENT.
     // Emulators
     "/dev/vboxguest",
     "/dev/vboxuser",
