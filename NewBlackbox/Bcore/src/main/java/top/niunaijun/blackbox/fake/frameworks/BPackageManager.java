@@ -95,8 +95,6 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
     }
 
     public Intent getLaunchIntentForPackage(String packageName, int userId) {
-        if (!isActivated()) return null;
-        
         if (shouldUseFallbackMode()) {
             Log.w(TAG, "Using fallback launch intent for " + packageName + " due to service failures");
             return createFallbackLaunchIntent(packageName);
@@ -509,11 +507,6 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
     }
 
     public InstallResult installPackageAsUser(String file, InstallOption option, int userId) {
-        if (!isActivated()) {
-            InstallResult result = new InstallResult();
-            result.installError("SDK not activated. Contact " + nk.getServerMessage());
-            return result;
-        }
         try {
             
             if (file != null && !file.isEmpty()) {
@@ -575,7 +568,6 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
     }
 
     public boolean isAppRunning(String packageName, int userId) {
-        if (!isActivated()) return false;
         try {
             return getService().isAppRunning(packageName, userId);
         } catch (RemoteException e) {

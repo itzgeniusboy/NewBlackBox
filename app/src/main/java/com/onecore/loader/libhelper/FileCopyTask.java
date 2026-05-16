@@ -79,7 +79,9 @@ public class FileCopyTask {
     public boolean isObbCopied(String packageName) {
         File destDir = getExternalObbDir(packageName);
         File[] files = destDir.listFiles();
-        return destDir.exists() && destDir.isDirectory() && files != null && files.length > 0;
+        boolean result = destDir.exists() && destDir.isDirectory() && files != null && files.length > 0;
+        Log.d("OBBCopy", "isObbCopied(" + packageName + "): " + result + ", path: " + destDir.getAbsolutePath() + ", exists: " + destDir.exists() + ", files: " + (files != null ? files.length : "null"));
+        return result;
     }
 
     public boolean isDataCopied(String packageName) {
@@ -348,15 +350,22 @@ public class FileCopyTask {
     }
 
     public void copyObbFolderAsync(final String packageName, final CopyCallback callback) {
+        Log.d("OBBCopy", "copyObbFolderAsync called for: " + packageName);
+        Log.d("OBBCopy", "isExternalStorageManager: " + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? Environment.isExternalStorageManager() : "N/A (pre-R)"));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+            Log.e("OBBCopy", "MANAGE_EXTERNAL_STORAGE permission missing! Requesting...");
             requestStoragePermission();
+            if (callback != null) callback.onCopyCompleted(false);
             return;
         }
 
         File sourceDataDirCheck = new File(Environment.getExternalStorageDirectory(), "Android/data/" + packageName);
         boolean dataSourceAvailable = sourceDataDirCheck.exists();
 
-        if (isObbCopied(packageName) && (!dataSourceAvailable || isDataCopied(packageName))) {
+        boolean obbAlreadyCopied = isObbCopied(packageName);
+        Log.d("OBBCopy", "isObbCopied: " + obbAlreadyCopied + ", dataSourceAvailable: " + dataSourceAvailable);
+        if (obbAlreadyCopied && (!dataSourceAvailable || isDataCopied(packageName))) {
+            Log.d("OBBCopy", "OBB already copied, skipping copy");
             if (callback != null) callback.onCopyCompleted(true);
             return;
         }
