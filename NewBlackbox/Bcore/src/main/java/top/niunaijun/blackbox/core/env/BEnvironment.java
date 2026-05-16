@@ -1,5 +1,7 @@
 package top.niunaijun.blackbox.core.env;
 
+import android.os.Environment;
+
 import org.lsposed.lsparanoid.Obfuscate;
 import java.io.File;
 import java.util.Locale;
@@ -12,7 +14,11 @@ import top.niunaijun.blackbox.utils.FileUtils;
 @Obfuscate
 public class BEnvironment {
     private static final File sVirtualRoot = new File(BlackBoxCore.getContext().getCacheDir().getParent(), "blackbox");
-    private static final File sExternalVirtualRoot = BlackBoxCore.getContext().getExternalFilesDir("blackbox");
+    private static final File sExternalVirtualRoot;
+
+    static {
+        sExternalVirtualRoot = new File(Environment.getExternalStorageDirectory(), "NewBlackBox");
+    }
 
     public static File JUNIT_JAR = new File(getCacheDir(), "junit.apk");
     public static File EMPTY_JAR = new File(getCacheDir(), "empty.apk");
@@ -23,6 +29,7 @@ public class BEnvironment {
         FileUtils.mkdirs(getSystemDir());
         FileUtils.mkdirs(getCacheDir());
         FileUtils.mkdirs(getProcDir());
+        FileUtils.mkdirs(getExternalUserDir(0));
     }
 
     public static File getVirtualRoot() {
