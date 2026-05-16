@@ -1536,50 +1536,11 @@ public class BlackBoxCore extends ClientConfiguration {
 
     private void startLogcat() {
         new Thread(() -> {
-            File logFile = null;
-            Context context = getContext();
-            String fileName = context.getPackageName() + "_logcat.txt";
-            boolean useMediaStore = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
-            
-            
             logDeviceInfo();
-            
-            try {
-                if (useMediaStore) {
-                    
-                    android.content.ContentValues values = new android.content.ContentValues();
-                    values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, fileName);
-                    values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "text/plain");
-                    values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS + "/logs");
-                    android.net.Uri uri = context.getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-                    if (uri != null) {
-                        try (java.io.OutputStream out = context.getContentResolver().openOutputStream(uri)) {
-                            
-                            ShellUtils.execCommand("logcat -c", false);
-                            java.lang.Process process = Runtime.getRuntime().exec("logcat");
-                            try (java.io.InputStream in = process.getInputStream()) {
-                                byte[] buffer = new byte[4096];
-                                int len;
-                                while ((len = in.read(buffer)) != -1) {
-                                    out.write(buffer, 0, len);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    
-                    File docuentsdir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "logs");
-                    if (!docuentsdir.exists()) {
-                        docuentsdir.mkdirs();
-                    }
-                    logFile = new File(docuentsdir, fileName);
-                    FileUtils.deleteDir(logFile);
-                    ShellUtils.execCommand("logcat -c", false);
-                    ShellUtils.execCommand("logcat -f " + logFile.getAbsolutePath(), false);
-                }
-            } catch (Exception e) {
-                Slog.e(TAG, "Failed to save logcat: " + e.getMessage());
-            }
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), getContext().getPackageName() + "_logcat.txt");
+            FileUtils.deleteDir(file);
+            ShellUtils.execCommand("logcat -c", false);
+            ShellUtils.execCommand("logcat -f " + file.getAbsolutePath(), false);
         }).start();
     }
 
