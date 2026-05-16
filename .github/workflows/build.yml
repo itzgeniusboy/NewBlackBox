@@ -42,6 +42,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Fix local.properties for CI
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "sdk.dir=$ANDROID_HOME" > NewBlackbox/local.properties
+
       - name: Build NewBlackBox AAR
         working-directory: NewBlackbox
         run: |
