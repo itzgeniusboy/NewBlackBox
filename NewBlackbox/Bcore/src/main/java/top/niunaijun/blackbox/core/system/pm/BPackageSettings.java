@@ -16,7 +16,14 @@ import top.niunaijun.blackbox.entity.pm.InstallOption;
 import top.niunaijun.blackbox.utils.CloseUtils;
 import top.niunaijun.blackbox.utils.FileUtils;
 
-
+/**
+ * Created by Milk on 4/21/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class BPackageSettings implements Parcelable {
     public BPackage pkg;
     public int appId;
@@ -69,8 +76,12 @@ public class BPackageSettings implements Parcelable {
             state = new BPackageUserState();
         }
         state = new BPackageUserState(state);
-        
-
+        // xp模块所有用户可见、如果开启的话
+        if (installOption.isFlag(InstallOption.FLAG_XPOSED) &&
+                BXposedManagerService.get().isModuleEnable(pkg.packageName) &&
+                BXposedManagerService.get().isXPEnable()) {
+            state.installed = true;
+        }
         if (userId == BUserHandle.USER_ALL) {
             state.installed = true;
         }

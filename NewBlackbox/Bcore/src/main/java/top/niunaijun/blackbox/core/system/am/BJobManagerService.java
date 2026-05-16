@@ -22,11 +22,18 @@ import top.niunaijun.blackbox.core.system.pm.BPackageManagerService;
 import top.niunaijun.blackbox.entity.JobRecord;
 import top.niunaijun.blackbox.proxy.ProxyManifest;
 
-
+/**
+ * Created by Milk on 4/2/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class BJobManagerService extends IBJobManagerService.Stub implements ISystemService {
     private static final BJobManagerService sService = new BJobManagerService();
 
-    
+    // process_jobId
     private final Map<String, JobRecord> mJobRecords = new HashMap<>();
 
     public static BJobManagerService get() {
@@ -76,7 +83,7 @@ public class BJobManagerService extends IBJobManagerService.Stub implements ISys
         for (String key : mJobRecords.keySet()) {
             if (key.startsWith(processName + "_")) {
                 JobRecord jobRecord = mJobRecords.get(key);
-                
+                // todo
             }
         }
     }

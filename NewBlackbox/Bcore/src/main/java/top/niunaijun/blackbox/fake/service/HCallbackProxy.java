@@ -4,10 +4,10 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -26,6 +26,7 @@ import black.android.app.BRActivityThreadH;
 import black.android.app.BRIActivityManager;
 import black.android.app.servertransaction.BRClientTransaction;
 import black.android.app.servertransaction.BRLaunchActivityItem;
+import black.android.app.servertransaction.LaunchActivityItem;
 import black.android.app.servertransaction.LaunchActivityItemContext;
 import black.android.os.BRHandler;
 import top.niunaijun.blackbox.BlackBoxCore;
@@ -35,7 +36,6 @@ import top.niunaijun.blackbox.proxy.ProxyManifest;
 import top.niunaijun.blackbox.proxy.record.ProxyActivityRecord;
 import top.niunaijun.blackbox.utils.Slog;
 import top.niunaijun.blackbox.utils.compat.BuildCompat;
-
 
 
 public class HCallbackProxy implements IInjectHook, Handler.Callback {
@@ -101,32 +101,32 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
     }
 
     private Object getLaunchActivityItem(Object clientTransaction) {
-        List<Object> mActivityCallbacks = BRClientTransaction.get(clientTransaction).mActivityCallbacks();
-
-        if (mActivityCallbacks == null) {
-            Slog.e(TAG, "mActivityCallbacks is null for clientTransaction: " + clientTransaction);
-            return null;
-        }
-
-        for (Object obj : mActivityCallbacks) {
-            if (BRLaunchActivityItem.getRealClass().getName().equals(obj.getClass().getCanonicalName())) {
-                return obj;
-            }
-        }
+    List<Object> mActivityCallbacks = BRClientTransaction.get(clientTransaction).mActivityCallbacks();
+    // Add null check to prevent NPE
+    if (mActivityCallbacks == null) {
         return null;
     }
 
+    for (Object obj : mActivityCallbacks) {
+        if (BRLaunchActivityItem.getRealClass().getName().equals(obj.getClass().getCanonicalName())) {
+            return obj;
+        }
+    }
+    return null;
+}
     private boolean handleLaunchActivity(Object client) {
-        Object r;
+    Object r;
+    try {
         if (BuildCompat.isPie()) {
-            
             r = getLaunchActivityItem(client);
         } else {
-            
             r = client;
         }
-        if (r == null)
+        
+        if (r == null) {
+            Slog.w(TAG, "handleLaunchActivity: Null activity record");
             return false;
+        }
 
         Intent intent;
         IBinder token;
@@ -139,63 +139,128 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
             token = clientRecordContext.token();
         }
 
-        if (intent == null)
+        if (intent == null) {
+            Slog.w(TAG, "handleLaunchActivity: Null intent");
             return false;
+        }
 
-        ProxyActivityRecord stubRecord = ProxyActivityRecord.create(intent);
+        // Set class loader before processing
+        intent.setExtrasClassLoader(getClass().getClassLoader());
+        
+        ProxyActivityRecord stubRecord;
+        try {
+            stubRecord = ProxyActivityRecord.create(intent);
+        } catch (Exception e) {
+            Slog.e(TAG, "Failed to create ProxyActivityRecord", e);
+            return false;
+        }
+
+        if (stubRecord.mActivityInfo == null) {
+            Slog.w(TAG, "handleLaunchActivity: Null activity info");
+            return false;
+        }
+
         ActivityInfo activityInfo = stubRecord.mActivityInfo;
-        if (activityInfo != null) {
-            if (BActivityThread.getAppConfig() == null) {
-                BlackBoxCore.getBActivityManager().restartProcess(activityInfo.packageName, activityInfo.processName, stubRecord.mUserId);
+        
+        if (BActivityThread.getAppConfig() == null) {
+            try {
+                BlackBoxCore.getBActivityManager().restartProcess(
+                    activityInfo.packageName, 
+                    activityInfo.processName, 
+                    stubRecord.mUserId
+                );
 
-                Intent launchIntentForPackage = BlackBoxCore.getBPackageManager().getLaunchIntentForPackage(activityInfo.packageName, stubRecord.mUserId);
-                intent.setExtrasClassLoader(this.getClass().getClassLoader());
-                ProxyActivityRecord.saveStub(intent, launchIntentForPackage, stubRecord.mActivityInfo, stubRecord.mActivityRecord, stubRecord.mUserId);
+                Intent launchIntentForPackage = BlackBoxCore.getBPackageManager()
+                    .getLaunchIntentForPackage(activityInfo.packageName, stubRecord.mUserId);
+                
+                if (launchIntentForPackage == null) {
+                    Slog.e(TAG, "No launch intent for package: " + activityInfo.packageName);
+                    return false;
+                }
+
+                intent.setExtrasClassLoader(getClass().getClassLoader());
+                ProxyActivityRecord.saveStub(
+                    intent, 
+                    launchIntentForPackage, 
+                    stubRecord.mActivityInfo, 
+                    stubRecord.mActivityRecord, 
+                    stubRecord.mUserId
+                );
+
                 if (BuildCompat.isPie()) {
                     LaunchActivityItemContext launchActivityItemContext = BRLaunchActivityItem.get(r);
                     launchActivityItemContext._set_mIntent(intent);
                     launchActivityItemContext._set_mInfo(activityInfo);
                 } else {
-                    ActivityThreadActivityClientRecordContext clientRecordContext = BRActivityThreadActivityClientRecord.get(r);
+                    ActivityThreadActivityClientRecordContext clientRecordContext = 
+                        BRActivityThreadActivityClientRecord.get(r);
                     clientRecordContext._set_intent(intent);
                     clientRecordContext._set_activityInfo(activityInfo);
                 }
                 return true;
+            } catch (Exception e) {
+                Slog.e(TAG, "Failed to restart process", e);
+                return false;
             }
+        }
+
+        // bind application if not initialized
+        if (!BActivityThread.currentActivityThread().isInit()) {
+            try {
+                BActivityThread.currentActivityThread().bindApplication(
+                    activityInfo.packageName,
+                    activityInfo.processName
+                );
+                return true;
+            } catch (Exception e) {
+                Slog.e(TAG, "Failed to bind application", e);
+                return false;
+            }
+        }
+
+        try {
+            int taskId = BRIActivityManager.get(BRActivityManagerNative.get().getDefault())
+                .getTaskForActivity(token, false);
+            BlackBoxCore.getBActivityManager()
+                .onActivityCreated(taskId, token, stubRecord.mActivityRecord);
+
+            LaunchActivityItemContext launchActivityItemContext = BRLaunchActivityItem.get(r);
             
-            if (!BActivityThread.currentActivityThread().isInit()) {
-                BActivityThread.currentActivityThread().bindApplication(activityInfo.packageName,
-                        activityInfo.processName);
+            if (BuildCompat.isPie()) {
+                launchActivityItemContext._set_mIntent(stubRecord.mTarget);
+                launchActivityItemContext._set_mInfo(activityInfo);
                 return true;
             }
 
-            int taskId = BRIActivityManager.get(BRActivityManagerNative.get().getDefault()).getTaskForActivity(token, false);
-            BlackBoxCore.getBActivityManager().onActivityCreated(taskId, token, stubRecord.mActivityRecord);
-
-            if(BuildCompat.isTiramisu()){
-                LaunchActivityItemContext launchActivityItemContext = BRLaunchActivityItem.get(r);
-                launchActivityItemContext._set_mIntent(stubRecord.mTarget);
-                launchActivityItemContext._set_mInfo(activityInfo);
-            } else if (BuildCompat.isS()) {
-                Object record = BRActivityThread.get(BlackBoxCore.mainThread()).getLaunchingActivity(token);
-                ActivityThreadActivityClientRecordContext clientRecordContext = BRActivityThreadActivityClientRecord.get(record);
+            if (Build.VERSION.SDK_INT == 31 || 
+                (Build.VERSION.SDK_INT == 30 && Build.VERSION.PREVIEW_SDK_INT == 1)) {
+                Object record = BRActivityThread.get(BlackBoxCore.mainThread())
+                    .getLaunchingActivity(token);
+                ActivityThreadActivityClientRecordContext clientRecordContext = 
+                    BRActivityThreadActivityClientRecord.get(record);
                 clientRecordContext._set_intent(stubRecord.mTarget);
                 clientRecordContext._set_activityInfo(activityInfo);
-                clientRecordContext._set_packageInfo(BActivityThread.currentActivityThread().getPackageInfo());
-
+                clientRecordContext._set_packageInfo(
+                    BActivityThread.currentActivityThread().getPackageInfo()
+                );
                 checkActivityClient();
-            } else if (BuildCompat.isPie()) {
-                LaunchActivityItemContext launchActivityItemContext = BRLaunchActivityItem.get(r);
-                launchActivityItemContext._set_mIntent(stubRecord.mTarget);
-                launchActivityItemContext._set_mInfo(activityInfo);
             } else {
-                ActivityThreadActivityClientRecordContext clientRecordContext = BRActivityThreadActivityClientRecord.get(r);
+                ActivityThreadActivityClientRecordContext clientRecordContext = 
+                    BRActivityThreadActivityClientRecord.get(r);
                 clientRecordContext._set_intent(stubRecord.mTarget);
                 clientRecordContext._set_activityInfo(activityInfo);
             }
+            
+            return true;
+        } catch (Exception e) {
+            Slog.e(TAG, "Failed to handle activity launch", e);
+            return false;
         }
+    } catch (Exception e) {
+        Slog.e(TAG, "Unexpected error in handleLaunchActivity", e);
         return false;
     }
+}
 
     private boolean handleCreateService(Object data) {
         if (BActivityThread.getAppConfig() != null) {

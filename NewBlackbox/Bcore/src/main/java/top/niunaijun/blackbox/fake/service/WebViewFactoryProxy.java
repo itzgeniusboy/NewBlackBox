@@ -269,4 +269,22 @@ public class WebViewFactoryProxy extends ClassInvocationStub {
             }
         }
     }
+
+    private void probeWebViewFactoryProvider() {
+        try {
+            Class<?> factoryCls = Class.forName("android.webkit.WebViewFactory");
+            String[] methods = {"getProvider", "getFactory", "getProviderClass"};
+            for (String name : methods) {
+                try {
+                    java.lang.reflect.Method m = factoryCls.getDeclaredMethod(name);
+                    m.setAccessible(true);
+                    Object provider = m.invoke(null);
+                    Slog.d(TAG, "Found " + name + ", provider=" + (provider == null ? "null" : provider.getClass().getName()));
+                    if (provider != null) break;
+                } catch (NoSuchMethodException ignore) {}
+            }
+        } catch (Throwable t) {
+            Slog.w(TAG, "probeWebViewFactoryProvider: reflection failed", t);
+        }
+    }
 }

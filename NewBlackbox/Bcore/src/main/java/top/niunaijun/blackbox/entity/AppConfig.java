@@ -5,7 +5,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 
-
+/**
+ * Created by Milk on 4/1/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class AppConfig implements Parcelable {
     public static final String KEY = "BlackBox_client_config";
 

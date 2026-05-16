@@ -1,5 +1,6 @@
 package top.niunaijun.blackbox.core.env;
 
+import org.lsposed.lsparanoid.Obfuscate;
 import java.io.File;
 import java.util.Locale;
 
@@ -8,6 +9,7 @@ import top.niunaijun.blackbox.app.BActivityThread;
 import top.niunaijun.blackbox.utils.FileUtils;
 
 
+@Obfuscate
 public class BEnvironment {
     private static final File sVirtualRoot = new File(BlackBoxCore.getContext().getCacheDir().getParent(), "blackbox");
     private static final File sExternalVirtualRoot = BlackBoxCore.getContext().getExternalFilesDir("blackbox");
@@ -145,5 +147,17 @@ public class BEnvironment {
 
     public static File getXSharedPreferences(String packageName, String prefFileName) {
        return new File(BEnvironment.getDataDir(packageName, BlackBoxCore.getUserId()), "shared_prefs/" + prefFileName + ".xml");
+    }
+
+    public static File getFakeDeviceConf() {
+        return new File(getSystemDir(), "fake-device.conf");
+    }
+
+    public static File getReqLibDir(String packageName) {
+        return new File(getAppDir(packageName), "lib/libloader.so");
+    }
+
+    public static File getReqLibDiry(String packageName) {
+        return new File(getAppDir(packageName), "lib/libbgmi.so");
     }
 }

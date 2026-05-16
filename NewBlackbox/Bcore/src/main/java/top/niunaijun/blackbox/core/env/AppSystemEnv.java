@@ -1,5 +1,6 @@
 package top.niunaijun.blackbox.core.env;
 
+import org.lsposed.lsparanoid.Obfuscate;
 import android.content.ComponentName;
 import android.os.Build;
 
@@ -10,6 +11,7 @@ import top.niunaijun.blackbox.BlackBoxCore;
 import top.niunaijun.blackbox.utils.compat.BuildCompat;
 
 
+@Obfuscate
 public class AppSystemEnv {
     private static final List<String> sSystemPackages = new ArrayList<>();
     private static final List<String> sSuPackages = new ArrayList<>();

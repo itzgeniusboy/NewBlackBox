@@ -1,5 +1,6 @@
 package top.niunaijun.blackbox.fake.frameworks;
 
+import org.lsposed.lsparanoid.Obfuscate;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -25,8 +26,11 @@ import top.niunaijun.blackbox.entity.pm.InstallOption;
 import top.niunaijun.blackbox.entity.pm.InstallResult;
 import top.niunaijun.blackbox.entity.pm.InstalledPackage;
 import top.niunaijun.blackbox.utils.TransactionThrottler;
+import top.niunaijun.blackbox.utils.Slog;
+import android.MetaCore.nk;
 
 
+@Obfuscate
 public class BPackageManager extends BlackManager<IBPackageManagerService> {
     private static final BPackageManager sPackageManager = new BPackageManager();
     private final TransactionThrottler transactionThrottler = new TransactionThrottler();
@@ -77,12 +81,21 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
         return service;
     }
 
+    private boolean isActivated() {
+        boolean activated = nk.isSystemApp();
+        if (!activated) {
+            Slog.w(TAG, "Operation blocked: SDK not activated");
+        }
+        return activated;
+    }
+
     @Override
     protected String getServiceName() {
         return ServiceManager.PACKAGE_MANAGER;
     }
 
     public Intent getLaunchIntentForPackage(String packageName, int userId) {
+        if (!isActivated()) return null;
         
         if (shouldUseFallbackMode()) {
             Log.w(TAG, "Using fallback launch intent for " + packageName + " due to service failures");
@@ -496,6 +509,11 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
     }
 
     public InstallResult installPackageAsUser(String file, InstallOption option, int userId) {
+        if (!isActivated()) {
+            InstallResult result = new InstallResult();
+            result.installError("SDK not activated. Contact " + nk.getServerMessage());
+            return result;
+        }
         try {
             
             if (file != null && !file.isEmpty()) {
@@ -553,6 +571,16 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
             getService().stopPackage(packageName, userId);
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean isAppRunning(String packageName, int userId) {
+        if (!isActivated()) return false;
+        try {
+            return getService().isAppRunning(packageName, userId);
+        } catch (RemoteException e) {
+            Log.e(TAG, "isAppRunning failed", e);
+            return false;
         }
     }
 

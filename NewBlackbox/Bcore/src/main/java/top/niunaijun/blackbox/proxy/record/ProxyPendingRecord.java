@@ -2,7 +2,14 @@ package top.niunaijun.blackbox.proxy.record;
 
 import android.content.Intent;
 
-
+/**
+ * Created by Milk on 3/31/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class ProxyPendingRecord {
     public int mUserId;
     public Intent mTarget;

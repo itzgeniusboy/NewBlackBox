@@ -16,7 +16,15 @@ import top.niunaijun.blackbox.fake.service.base.PkgMethodProxy;
 import top.niunaijun.blackbox.utils.MethodParameterUtils;
 import top.niunaijun.blackbox.utils.compat.ParceledListSliceCompat;
 
-
+/**
+ * Created by Milk on 4/5/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ * 未实现，全部拦截
+ */
 public class IShortcutManagerProxy extends BinderInvocationStub {
 
     public IShortcutManagerProxy() {
@@ -41,7 +49,7 @@ public class IShortcutManagerProxy extends BinderInvocationStub {
     @Override
     protected void onBindMethod() {
         super.onBindMethod();
-        addMethodHook(new PkgMethodProxy("getShortcuts"));
+        addMethodHook(new PkgMethodProxy("getShortcuts"));//修复whtasApp启动黑屏问题
         addMethodHook(new PkgMethodProxy("disableShortcuts"));
         addMethodHook(new PkgMethodProxy("enableShortcuts"));
         addMethodHook(new PkgMethodProxy("getRemainingCallCount"));

@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+    dependencies {
+        classpath 'org.lsposed.lsparanoid:gradle-plugin:0.5.2'
+        classpath 'com.github.CodingGay:BlackObfuscator-ASPlugin:3.9'
+    }
+}
 
 plugins {
 alias(libs.plugins.android.application) apply false

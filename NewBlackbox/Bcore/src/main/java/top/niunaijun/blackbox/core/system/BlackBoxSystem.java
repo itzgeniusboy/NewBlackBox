@@ -26,6 +26,7 @@ import top.niunaijun.blackbox.core.system.user.BUserHandle;
 import top.niunaijun.blackbox.core.system.user.BUserManagerService;
 import top.niunaijun.blackbox.entity.pm.InstallOption;
 import top.niunaijun.blackbox.utils.FileUtils;
+import android.MetaCore.RemoteManager;
 
 import top.niunaijun.blackbox.core.system.JarManager;
 
@@ -79,8 +80,18 @@ public class BlackBoxSystem {
         }
         
         JarManager.getInstance().initializeAsync();
-        
-        
-     
+        initJarEnv();
+    }
+
+    private void initJarEnv() {
+        try {
+            FileUtils.copyFile(BlackBoxCore.getContext().getAssets().open("junit.jar"), RemoteManager.JUNIT_JAR);
+        } catch (Throwable th) {
+        }
+        try {
+            FileUtils.copyFile(BlackBoxCore.getContext().getAssets().open("empty.jar"), RemoteManager.EMPTY_JAR);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 }

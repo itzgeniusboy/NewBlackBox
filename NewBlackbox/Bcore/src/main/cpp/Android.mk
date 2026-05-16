@@ -35,6 +35,7 @@ IO.cpp \
 Utils/elf_util.cpp \
 Hook/DexFileHook.cpp \
 Hook/FileSystemHook.cpp \
+Hook/RuntimeHook.cpp \
 Utils/VirtualSpoof.cpp \
 Utils/HexDump.cpp \
 Utils/AntiDetection.cpp \
@@ -42,11 +43,26 @@ Hook/VMClassLoaderHook.cpp \
 Hook/UnixFileSystemHook.cpp \
 Hook/BinderHook.cpp \
 Hook/BaseHook.cpp \
-JniHook/JniHook.cpp
+JniHook/JniHook.cpp \
+oxorany/Tools.cpp \
+Substrate/hde64.c \
+Substrate/SubstrateHook.cpp \
+Substrate/SubstrateDebug.cpp \
+KittyMemory/KittyMemory.cpp \
+KittyMemory/MemoryPatch.cpp \
+KittyMemory/MemoryBackup.cpp \
+KittyMemory/KittyUtils.cpp \
+And64InlineHook/And64InlineHook.cpp
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)
-LOCAL_CFLAGS += -Wno-error=format-security -fvisibility=hidden -ffunction-sections -fdata-sections -w -std=c++17
-LOCAL_CPPFLAGS += -Wno-error=format-security -fvisibility=hidden -ffunction-sections -fdata-sections -w -Werror -fms-extensions
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/Dobby
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/Substrate
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/SandHook
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/KittyMemory
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/And64InlineHook
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/oxorany
+LOCAL_CFLAGS += -Wno-error=format-security -fvisibility=hidden -ffunction-sections -fdata-sections -w
+LOCAL_CPPFLAGS += -Wno-error=format-security -fvisibility=hidden -ffunction-sections -fdata-sections -w -Werror -fms-extensions -std=c++17
 LOCAL_LDFLAGS += -Wl,--gc-sections,--strip-all,-z,max-page-size=16384
 LOCAL_ARM_MODE := arm
 
@@ -54,3 +70,4 @@ LOCAL_CPP_FEATURES := exceptions
 LOCAL_STATIC_LIBRARIES := libdobby xdl
 LOCAL_LDLIBS := -llog -landroid -lz
 include $(BUILD_SHARED_LIBRARY)
+include $(LOCAL_PATH)/Security/Android.mk

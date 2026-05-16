@@ -44,6 +44,7 @@ interface IBPackageManagerService {
     void deleteUser(int userId);
 
     boolean isInstalled(String packageName, int userId);
+    boolean isAppRunning(String packageName, int userId);
     List<InstalledPackage> getInstalledPackagesAsUser(int userId);
     String[] getPackagesForUid(int uid, int userId);
 }

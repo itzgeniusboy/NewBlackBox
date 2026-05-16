@@ -11,11 +11,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import black.android.content.BRIIntentReceiver;
-import top.niunaijun.blackbox.BlackBoxCore;
 import top.niunaijun.blackbox.app.BActivityThread;
 import top.niunaijun.blackbox.proxy.record.ProxyBroadcastRecord;
 
-
+/**
+ * Created by Milk on 4/2/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class InnerReceiverDelegate extends IIntentReceiver.Stub {
     public static final String TAG = "InnerReceiverDelegate";
 
@@ -56,11 +62,11 @@ public class InnerReceiverDelegate extends IIntentReceiver.Stub {
 
     @Override
     public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered, boolean sticky, int sendingUser) throws RemoteException {
-        intent.setExtrasClassLoader(BlackBoxCore.getApplication().getClassLoader());
+        intent.setExtrasClassLoader(BActivityThread.getApplication().getClassLoader());
         ProxyBroadcastRecord proxyBroadcastRecord = ProxyBroadcastRecord.create(intent);
         Intent perIntent;
         if (proxyBroadcastRecord.mIntent != null) {
-            proxyBroadcastRecord.mIntent.setExtrasClassLoader(BlackBoxCore.getApplication().getClassLoader());
+            proxyBroadcastRecord.mIntent.setExtrasClassLoader(BActivityThread.getApplication().getClassLoader());
             perIntent = proxyBroadcastRecord.mIntent;
         } else {
             perIntent = intent;

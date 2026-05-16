@@ -1,5 +1,6 @@
 package top.niunaijun.blackbox.core;
 
+import org.lsposed.lsparanoid.Obfuscate;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -24,6 +25,7 @@ import top.niunaijun.blackbox.utils.TrieTree;
 
 
 @SuppressLint("SdCardPath")
+@Obfuscate
 public class IOCore {
     public static final String TAG = "IOCore";
 

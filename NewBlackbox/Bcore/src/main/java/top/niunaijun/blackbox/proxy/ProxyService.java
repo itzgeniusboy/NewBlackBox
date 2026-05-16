@@ -12,7 +12,14 @@ import top.niunaijun.blackbox.BlackBoxCore;
 import top.niunaijun.blackbox.app.dispatcher.AppServiceDispatcher;
 import top.niunaijun.blackbox.utils.compat.BuildCompat;
 
-
+/**
+ * Created by Milk on 3/30/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class ProxyService extends Service {
     public static final String TAG = "StubService";
 

@@ -4,27 +4,37 @@ plugins {
 }
 
 android {
-
     namespace 'top.niunaijun.blackboxa'
     compileSdk rootProject.ext.compileSdkVersion
     ndkVersion = "29.0.13846066"
+    
     defaultConfig {
         applicationId "top.niunaijun.blackbox"
         minSdk rootProject.ext.minSdk
-        targetSdk rootProject.ext.targetSdkVersion
+        // CHANGE: Set targetSdk to 35 explicitly (was 28)
+        targetSdk 35   // rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        // ADD: Manifest placeholder for extractNativeLibs
+        manifestPlaceholders = [extractNativeLibs: "true"]
+
         splits {
             abi {
                 enable true
                 reset()
-                
                 include 'armeabi-v7a', "arm64-v8a"
                 universalApk true
             }
+        }
+    }
+
+    // ADD: Packaging options to ensure native libs are not compressed
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
         }
     }
 
@@ -71,28 +81,16 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
 
-    
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.gitee.cbfg5210:RVAdapter:0.3.7'
 
-    
     implementation 'com.github.Othershe:CornerLabelView:1.0.0'
-    
     implementation 'com.github.nukc.stateview:kotlin:2.2.0'
-    
     implementation 'com.github.Ferfalk:SimpleSearchView:0.2.0'
     implementation 'com.tbuonomo:dotsindicator:4.2'
-    
     implementation 'org.osmdroid:osmdroid-android:6.1.11'
-    
     implementation 'com.afollestad.material-dialogs:core:3.3.0'
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
 
-
-
-
-
-    
     implementation 'androidx.work:work-runtime:2.7.1'
-
 }

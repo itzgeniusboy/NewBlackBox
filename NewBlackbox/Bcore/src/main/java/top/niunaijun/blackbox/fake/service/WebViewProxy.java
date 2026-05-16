@@ -294,4 +294,25 @@ public class WebViewProxy extends ClassInvocationStub {
             return method.invoke(who, args);
         }
     }
+
+    private void ensureWebViewDataDirectorySuffix() {
+        String suffix;
+        if (android.os.Build.VERSION.SDK_INT >= 28 && (suffix = buildDataDirectorySuffix()) != null && !suffix.isEmpty()) {
+            try {
+                Class.forName("android.webkit.WebView").getMethod("setDataDirectorySuffix", new Class[]{String.class}).invoke(null, new Object[]{suffix});
+                Slog.d(TAG, "Applied WebView suffix=" + suffix);
+            } catch (Throwable t) {
+                Slog.w(TAG, "Failed to set WebView suffix", t);
+            }
+        }
+    }
+
+    private String buildDataDirectorySuffix() {
+        try {
+            int uid = android.os.Process.myUid();
+            return "blackbox_u" + uid + "_p" + android.os.Process.myPid();
+        } catch (Throwable th) {
+            return null;
+        }
+    }
 }

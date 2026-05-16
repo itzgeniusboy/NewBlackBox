@@ -11,4 +11,7 @@ public interface AttributionSourceState {
 
     @BField
     int uid();
+
+    @BField
+    int pid();
 }

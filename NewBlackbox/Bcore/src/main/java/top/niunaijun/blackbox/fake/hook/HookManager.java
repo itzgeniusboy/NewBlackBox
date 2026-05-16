@@ -91,6 +91,8 @@ import top.niunaijun.blackbox.utils.compat.BuildCompat;
 import top.niunaijun.blackbox.fake.service.ISettingsProviderProxy;
 import top.niunaijun.blackbox.fake.service.FeatureFlagUtilsProxy;
 import top.niunaijun.blackbox.fake.service.WorkManagerProxy;
+import top.niunaijun.blackbox.fake.service.ILocaleManagerProxy;
+import top.niunaijun.blackbox.fake.service.vivo.IVivoPermissionServiceProxy;
 
 
 
@@ -173,6 +175,8 @@ public class HookManager {
             
             addInjector(new IVibratorServiceProxy());
             addInjector(new IPersistentDataBlockServiceProxy());
+            addInjector(new ILocaleManagerProxy());
+            addInjector(new IVivoPermissionServiceProxy());
             addInjector(AppInstrumentation.get());
             
             addInjector(new IWifiManagerProxy());

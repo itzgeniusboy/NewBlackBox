@@ -3,11 +3,18 @@ package top.niunaijun.blackbox.entity.pm;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-
+/**
+ * Created by Milk on 4/21/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class InstallOption implements Parcelable {
     public static final int FLAG_SYSTEM = 1;
     public static final int FLAG_STORAGE = 1 << 1;
-
+    public static final int FLAG_XPOSED = 1 << 2;
     public static final int FLAG_URI_FILE = 1 << 3;
 
     public int flags = 0;
@@ -24,7 +31,10 @@ public class InstallOption implements Parcelable {
         return installOption;
     }
 
-
+    public InstallOption makeXposed() {
+        this.flags |= FLAG_XPOSED;
+        return this;
+    }
 
     public InstallOption makeUriFile() {
         this.flags |= FLAG_URI_FILE;

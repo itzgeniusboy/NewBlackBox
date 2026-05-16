@@ -141,6 +141,9 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             
             
             if ("com.android.vending".equals(packageName)) {
+                return createFakeGooglePlayStorePackageInfo();
+            }
+            if ("com.google.android.gms".equals(packageName)) {
                 return createFakeGooglePlayServicesPackageInfo();
             }
             
@@ -166,7 +169,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             return null;
         }
         
-        private PackageInfo createFakeGooglePlayServicesPackageInfo() {
+        private PackageInfo createFakeGooglePlayStorePackageInfo() {
             PackageInfo packageInfo = new PackageInfo();
             packageInfo.packageName = "com.android.vending";
             packageInfo.versionName = "33.8.16-21";
@@ -179,6 +182,21 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             appInfo.uid = 10001; 
             packageInfo.applicationInfo = appInfo;
             
+            Slog.d(TAG, "GetPackageInfo: Providing fake Google Play Store info");
+            return packageInfo;
+        }
+
+        private PackageInfo createFakeGooglePlayServicesPackageInfo() {
+            PackageInfo packageInfo = new PackageInfo();
+            packageInfo.packageName = "com.google.android.gms";
+            packageInfo.versionCode = 250505301;
+            packageInfo.versionName = "25.05.53";
+
+            ApplicationInfo appInfo = new ApplicationInfo();
+            appInfo.packageName = "com.google.android.gms";
+            appInfo.enabled = true;
+            packageInfo.applicationInfo = appInfo;
+
             Slog.d(TAG, "GetPackageInfo: Providing fake Google Play Services info");
             return packageInfo;
         }

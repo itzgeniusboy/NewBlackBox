@@ -1,5 +1,6 @@
 package top.niunaijun.blackbox.fake.service;
 
+import org.lsposed.lsparanoid.Obfuscate;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.IServiceConnection;
@@ -63,6 +64,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 
 @ScanClass(ActivityManagerCommonProxy.class)
+@Obfuscate
 public class IActivityManagerProxy extends ClassInvocationStub {
     public static final String TAG = "ActivityManagerStub";
 

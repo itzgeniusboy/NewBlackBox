@@ -1,5 +1,6 @@
 package top.niunaijun.blackbox.core.system.pm;
 
+import org.lsposed.lsparanoid.Obfuscate;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.content.pm.PackageParser;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.app.ActivityManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.RemoteException;
@@ -50,6 +52,7 @@ import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
 
 
 
+@Obfuscate
 public class BPackageManagerService extends IBPackageManagerService.Stub implements ISystemService {
     public static final String TAG = "BPackageManagerService";
     public static BPackageManagerService sService = new BPackageManagerService();
@@ -59,6 +62,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
     private final List<PackageMonitor> mPackageMonitors = new ArrayList<>();
 
     final Map<String, BPackageSettings> mPackages = mSettings.mPackages;
+    final Map<String, ApplicationInfo> mFakeApps = new java.util.HashMap<>();
     final Object mInstallLock = new Object();
 
     public static BPackageManagerService get() {
@@ -807,5 +811,22 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             mComponentResolver.removeAllComponents(value.pkg);
             mComponentResolver.addAllComponents(value.pkg);
         }
+    }
+
+    public boolean isAppRunning(String packageName, int userId) {
+        List<ActivityManager.RunningAppProcessInfo> processes = ((ActivityManager) BlackBoxCore.getContext().getSystemService("activity")).getRunningAppProcesses();
+        if (processes == null) {
+            return false;
+        }
+        for (ActivityManager.RunningAppProcessInfo process : processes) {
+            if (java.util.Arrays.asList(process.pkgList).contains(packageName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void injectFakeApp(String packageName, ApplicationInfo info) {
+        mFakeApps.put(packageName, info);
     }
 }

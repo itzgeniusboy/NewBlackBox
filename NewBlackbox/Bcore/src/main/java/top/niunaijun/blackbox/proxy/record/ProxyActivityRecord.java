@@ -6,7 +6,14 @@ import android.os.IBinder;
 
 import top.niunaijun.blackbox.utils.compat.BundleCompat;
 
-
+/**
+ * Created by Milk on 3/31/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class ProxyActivityRecord {
     public int mUserId;
     public ActivityInfo mActivityInfo;

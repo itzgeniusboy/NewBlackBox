@@ -6,26 +6,16 @@
 #include <string.h>
 #include <errno.h>
 #include <dirent.h>
+#include <stdarg.h>
 #include "Dobby/dobby.h"
 #include "xdl.h"
 
 #define LOG_TAG "AntiDetection"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-
-struct SpoofedProp {
-    const char* key;
-    const char* value;
-};
-
-
-static int (*orig_system_property_get)(const char *name, char *value) = nullptr;
-
-
-
-
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 static const char* blocked_files[] = {
-    
+    // su binaries
     "/system/xbin/su",
     "/system/bin/su",
     "/sbin/su",
@@ -43,8 +33,7 @@ static const char* blocked_files[] = {
     "/system/xbin/magisk",
     "/sbin/magisk",
     "/data/adb/magisk",
-    
-    
+    // Virtual environments
     "/data/virtual",
     "/data/data/com.benny.openlauncher",
     "/data/data/io.va.exposed",
@@ -56,8 +45,7 @@ static const char* blocked_files[] = {
     "/data/data/top.niunaijun.blackboxa",
     "/blackbox",
     "/virtual",
-    
-    
+    // Emulators
     "/dev/vboxguest",
     "/dev/vboxuser",
     "/dev/qemu_pipe",
@@ -78,14 +66,12 @@ static const char* blocked_files[] = {
     "/system/lib/libnoxspeedup.so",
     "/system/lib/libmemu.so",
     "/system/lib/libbluelog.so",
-    
-    
+    // Xposed
     "/system/xposed.prop",
     "/system/framework/XposedBridge.jar",
     "/data/data/de.robv.android.xposed.installer",
     "/data/data/org.meowcat.edxposed.manager",
     "/data/data/top.canyie.dreamland.manager",
-    
     nullptr
 };
 
@@ -141,7 +127,7 @@ static bool is_blocked_package(const char* path) {
     return false;
 }
 
-
+// Original function pointers
 static int (*orig_access)(const char *pathname, int mode) = nullptr;
 static int (*orig_stat)(const char *pathname, struct stat *buf) = nullptr;
 static int (*orig_lstat)(const char *pathname, struct stat *buf) = nullptr;
@@ -150,8 +136,6 @@ static int (*orig_open)(const char *pathname, int flags, ...) = nullptr;
 static ssize_t (*orig_readlink)(const char *pathname, char *buf, size_t bufsiz) = nullptr;
 static DIR* (*orig_opendir)(const char *name) = nullptr;
 
-
-
 static bool is_safe_path(const char* path) {
     if (!path) return false;
     if (strstr(path, "/proc/net/")) return true;
@@ -159,6 +143,7 @@ static bool is_safe_path(const char* path) {
     return false;
 }
 
+// Hook implementations
 static int my_access(const char *pathname, int mode) {
     if (pathname && !is_safe_path(pathname) && (is_blocked_file(pathname) || is_blocked_package(pathname))) {
         errno = ENOENT;
@@ -226,19 +211,38 @@ static DIR* my_opendir(const char *name) {
     return orig_opendir ? orig_opendir(name) : nullptr;
 }
 
-
-static void install_file_hooks() {
-    void* handle = xdl_open("libc.so", XDL_DEFAULT);
-    if (!handle) {
-        LOGD("xdl_open failed for libc.so");
-        return;
-    }
-
-
+// Helper to get symbol address using xdl
+static void* get_sym(const char* lib, const char* sym) {
+    void* handle = xdl_open(lib, XDL_DEFAULT);
+    if (!handle) return nullptr;
+    void* addr = xdl_sym(handle, sym, nullptr);
     xdl_close(handle);
-    LOGD("File system hooks installed");
+    return addr;
 }
 
+static void install_file_hooks() {
+    LOGD("Installing actual file system hooks...");
+
+    // Get original libc addresses
+    orig_access = (int (*)(const char*, int)) get_sym("libc.so", "access");
+    orig_stat = (int (*)(const char*, struct stat*)) get_sym("libc.so", "stat");
+    orig_lstat = (int (*)(const char*, struct stat*)) get_sym("libc.so", "lstat");
+    orig_fopen = (FILE* (*)(const char*, const char*)) get_sym("libc.so", "fopen");
+    orig_open = (int (*)(const char*, int, ...)) get_sym("libc.so", "open");
+    orig_readlink = (ssize_t (*)(const char*, char*, size_t)) get_sym("libc.so", "readlink");
+    orig_opendir = (DIR* (*)(const char*)) get_sym("libc.so", "opendir");
+
+    // Install hooks using Dobby
+    if (orig_access) DobbyHook((void*)orig_access, (void*)my_access, (void**)&orig_access);
+    if (orig_stat) DobbyHook((void*)orig_stat, (void*)my_stat, (void**)&orig_stat);
+    if (orig_lstat) DobbyHook((void*)orig_lstat, (void*)my_lstat, (void**)&orig_lstat);
+    if (orig_fopen) DobbyHook((void*)orig_fopen, (void*)my_fopen, (void**)&orig_fopen);
+    if (orig_open) DobbyHook((void*)orig_open, (void*)my_open, (void**)&orig_open);
+    if (orig_readlink) DobbyHook((void*)orig_readlink, (void*)my_readlink, (void**)&orig_readlink);
+    if (orig_opendir) DobbyHook((void*)orig_opendir, (void*)my_opendir, (void**)&orig_opendir);
+
+    LOGD("File system hooks installed successfully");
+}
 
 __attribute__((constructor)) void install_antidetection_hooks() {
     LOGD("Installing anti-detection hooks...");

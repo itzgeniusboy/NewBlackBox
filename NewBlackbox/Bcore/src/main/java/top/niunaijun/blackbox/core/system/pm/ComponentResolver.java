@@ -15,24 +15,41 @@ import java.util.List;
 import top.niunaijun.blackbox.utils.Slog;
 
 
-
+/**
+ * Created by Milk on 4/14/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class ComponentResolver {
     public static final String TAG = "ComponentResolver";
 
     private final Object mLock = new Object();
 
-    
+    /**
+     * All available activities, for your resolving pleasure.
+     */
     private final ActivityIntentResolver mActivities = new ActivityIntentResolver();
 
-    
+    /**
+     * All available providers, for your resolving pleasure.
+     */
     private final ProviderIntentResolver mProviders = new ProviderIntentResolver();
 
-    
+    /**
+     * All available receivers, for your resolving pleasure.
+     */
     private final ActivityIntentResolver mReceivers = new ActivityIntentResolver();
 
-    
+    /**
+     * All available services, for your resolving pleasure.
+     */
     private final ServiceIntentResolver mServices = new ServiceIntentResolver();
-    
+    /**
+     * Mapping from provider authority [first directory in content URI codePath) to provider.
+     */
     private final ArrayMap<String, BPackage.Provider> mProvidersByAuthority = new ArrayMap<>();
 
     public ComponentResolver() {
@@ -71,9 +88,9 @@ public class ComponentResolver {
             BPackage.Provider p = pkg.providers.get(i);
             mProviders.removeProvider(p);
             if (p.info.authority == null) {
-                
-                
-                
+                // Another content provider with this authority existed when this app was
+                // installed, so this authority is null. Ignore it as we don't have to
+                // unregister the provider.
                 continue;
             }
             String[] names = p.info.authority.split(";");
@@ -167,28 +184,36 @@ public class ComponentResolver {
     }
 
 
-    
+    /**
+     * Returns the given activity
+     */
     BPackage.Activity getActivity(ComponentName component) {
         synchronized (mLock) {
             return mActivities.mActivities.get(component);
         }
     }
 
-    
+    /**
+     * Returns the given provider
+     */
     BPackage.Provider getProvider(ComponentName component) {
         synchronized (mLock) {
             return mProviders.mProviders.get(component);
         }
     }
 
-    
+    /**
+     * Returns the given receiver
+     */
     BPackage.Activity getReceiver(ComponentName component) {
         synchronized (mLock) {
             return mReceivers.mActivities.get(component);
         }
     }
 
-    
+    /**
+     * Returns the given service
+     */
     BPackage.Service getService(ComponentName component) {
         synchronized (mLock) {
             return mServices.mServices.get(component);
@@ -238,7 +263,7 @@ public class ComponentResolver {
                 if (processName != null && (!p.info.processName.equals(processName))) {
                     continue;
                 }
-                
+                // See PM.queryContentProviders()'s javadoc for why we have the metaData parameter.
                 if (metaDataKey != null
                         && (p.metaData == null || !p.metaData.containsKey(metaDataKey))) {
                     continue;
@@ -247,9 +272,9 @@ public class ComponentResolver {
                 if (info == null) {
                     continue;
                 }
-
-
-
+//                if (providerList == null) {
+//                    providerList = new ArrayList<>(i + 1);
+//                }
                 providerList.add(info);
             }
         }
@@ -390,7 +415,7 @@ public class ComponentResolver {
             return res;
         }
 
-        
+        // Keys are String (activity class name), values are Activity.
         private final ArrayMap<ComponentName, BPackage.Service> mServices = new ArrayMap<>();
         private int mFlags;
     }
@@ -486,8 +511,8 @@ public class ComponentResolver {
             }
             res.priority = info.intentFilter.getPriority();
             res.preferredOrder = activity.owner.mPreferredOrder;
-            
-            
+            //System.out.println("Result: " + res.activityInfo.className +
+            //                   " = " + res.priority);
             res.match = match;
             res.isDefault = info.hasDefault;
             res.labelRes = info.labelRes;
@@ -496,7 +521,7 @@ public class ComponentResolver {
             return res;
         }
 
-        
+        // Keys are String (activity class name), values are Activity.
         private final ArrayMap<ComponentName, BPackage.Activity> mActivities =
                 new ArrayMap<>();
         private int mFlags;

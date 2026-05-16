@@ -241,4 +241,29 @@ public class IWebViewUpdateServiceProxy extends ClassInvocationStub {
             }
         }
     }
+
+    private void createSafeFallback() {
+        try {
+            final Class<?> iface = Class.forName("android.webkit.IWebViewUpdateService");
+            Object proxy = java.lang.reflect.Proxy.newProxyInstance(
+                iface.getClassLoader(),
+                new Class<?>[]{iface},
+                new java.lang.reflect.InvocationHandler() {
+                    @Override
+                    public Object invoke(Object p, java.lang.reflect.Method method, Object[] args) {
+                        if (method.getReturnType().isArray()) {
+                            return java.lang.reflect.Array.newInstance(method.getReturnType().getComponentType(), 0);
+                        }
+                        if (method.getReturnType() == boolean.class || method.getReturnType() == Boolean.class) {
+                            return false;
+                        }
+                        return null;
+                    }
+                }
+            );
+            Slog.d(TAG, "Safe IWebViewUpdateService proxy created: " + proxy.getClass().getName());
+        } catch (Throwable t) {
+            Slog.w(TAG, "createSafeFallback failed", t);
+        }
+    }
 }

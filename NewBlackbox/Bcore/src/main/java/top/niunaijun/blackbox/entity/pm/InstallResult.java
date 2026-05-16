@@ -5,7 +5,14 @@ import android.os.Parcelable;
 
 import top.niunaijun.blackbox.utils.Slog;
 
-
+/**
+ * Created by Milk on 4/20/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class InstallResult implements Parcelable {
     public static final String TAG = "InstallResult";
 

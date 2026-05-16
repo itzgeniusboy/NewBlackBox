@@ -68,6 +68,9 @@ import top.niunaijun.blackbox.core.IBActivityThread;
 import top.niunaijun.blackbox.core.IOCore;
 import top.niunaijun.blackbox.core.NativeCore;
 import top.niunaijun.blackbox.core.env.VirtualRuntime;
+import top.niunaijun.blackbox.fake.frameworks.BXposedManager;
+import android.MetaCore.RemoteManager;
+import org.lsposed.lsparanoid.Obfuscate;
 import top.niunaijun.blackbox.core.system.user.BUserHandle;
 import top.niunaijun.blackbox.entity.AppConfig;
 import top.niunaijun.blackbox.entity.am.ReceiverData;
@@ -88,6 +91,7 @@ import top.niunaijun.blackbox.utils.compat.StrictModeCompat;
 import top.niunaijun.blackbox.core.system.JarManager;
 
 
+@Obfuscate
 public class BActivityThread extends IBActivityThread.Stub {
     public static final String TAG = "BActivityThread";
 
@@ -122,6 +126,18 @@ public class BActivityThread extends IBActivityThread.Stub {
 
     public static List<ProviderInfo> getProviders() {
         return currentActivityThread().mProviders;
+    }
+
+    private void fixWeChatRecovery(Application application) {
+        try {
+            java.lang.reflect.Field field = application.getClassLoader().loadClass("com.tencent.recovery.Recovery").getField("context");
+            field.setAccessible(true);
+            if (field.get(null) == null) {
+                field.set(null, application.getBaseContext());
+            }
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
     }
 
     public static String getAppProcessName() {
@@ -1041,7 +1057,16 @@ public class BActivityThread extends IBActivityThread.Stub {
         }
     }
 
-
+    public void loadXposed(Context context) {
+        String vPackageName = getAppPackageName();
+        String vProcessName = getAppProcessName();
+        if (!TextUtils.isEmpty(vPackageName) && !TextUtils.isEmpty(vProcessName) && BXposedManager.get().isXPEnable()) {
+            // Optional: module loading logic can go here
+        }
+        if (RemoteManager.sHideXposed) {
+            NativeCore.hideXposed();
+        }
+    }
 
     @Override
     public IBinder getActivityThread() {

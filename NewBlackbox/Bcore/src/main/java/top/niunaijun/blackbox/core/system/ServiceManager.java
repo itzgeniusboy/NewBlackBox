@@ -13,7 +13,7 @@ import top.niunaijun.blackbox.core.system.location.BLocationManagerService;
 import top.niunaijun.blackbox.core.system.notification.BNotificationManagerService;
 import top.niunaijun.blackbox.core.system.os.BStorageManagerService;
 import top.niunaijun.blackbox.core.system.pm.BPackageManagerService;
-
+import top.niunaijun.blackbox.core.system.pm.BXposedManagerService;
 import top.niunaijun.blackbox.core.system.user.BUserManagerService;
 
 
@@ -28,6 +28,7 @@ public class ServiceManager {
     public static final String ACCOUNT_MANAGER = "account_manager";
     public static final String LOCATION_MANAGER = "location_manager";
     public static final String NOTIFICATION_MANAGER = "notification_manager";
+    public static final String XPOSED_MANAGER = "xposed_manager";
 
     private final Map<String, IBinder> mCaches = new HashMap<>();
 
@@ -56,6 +57,7 @@ public class ServiceManager {
         mCaches.put(ACCOUNT_MANAGER, BAccountManagerService.get());
         mCaches.put(LOCATION_MANAGER, BLocationManagerService.get());
         mCaches.put(NOTIFICATION_MANAGER, BNotificationManagerService.get());
+        mCaches.put(XPOSED_MANAGER, BXposedManagerService.get());
     }
 
     public IBinder getServiceInternal(String name) {
@@ -72,5 +74,6 @@ public class ServiceManager {
         BlackBoxCore.get().getService(ACCOUNT_MANAGER);
         BlackBoxCore.get().getService(LOCATION_MANAGER);
         BlackBoxCore.get().getService(NOTIFICATION_MANAGER);
+        BlackBoxCore.get().getService(XPOSED_MANAGER);
     }
 }

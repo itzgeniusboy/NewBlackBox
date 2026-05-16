@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'org.lsposed.lsparanoid'
+apply plugin: 'top.niunaijun.blackobfuscator'
 
 android {
     namespace 'top.niunaijun.blackbox'
@@ -41,6 +44,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
     
     
@@ -88,7 +95,60 @@ dependencies {
 
     implementation 'com.github.tiann:FreeReflection:3.2.2'
 
+    // Kotlin stdlib (needed for MetaCore files from vbox-sdk)
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 
+    // zip4j (needed for Domen.java and Qlog.java remote ZIP download)
+    implementation 'net.lingala.zip4j:zip4j:2.11.5'
+}
 
-    
+// BlackObfuscator configuration (from vbox-sdk)
+BlackObfuscator {
+    enabled true
+    depth 3
+    obfClass = [
+        "android.MetaCore.AdvancedPopupHelper",
+        "android.MetaCore.db",
+        "android.MetaCore.nk",
+        "android.MetaCore.PermissionManager",
+        "android.MetaCore.RemoteManager",
+        "android.MetaCore.Service.MetaActivationService",
+        "net_62v.external.MetaActivationManager",
+        "net_62v.external.MetaStorageManager",
+        "top.niunaijun.blackbox.BlackBoxCore",
+        "top.niunaijun.blackbox.app.BActivityThread",
+        "top.niunaijun.blackbox.app.LauncherActivity",
+        "top.niunaijun.blackbox.app.configuration.AppLifecycleCallback",
+        "top.niunaijun.blackbox.app.configuration.ClientConfiguration",
+        "top.niunaijun.blackbox.core.GmsCore",
+        "top.niunaijun.blackbox.core.NativeCore",
+        "top.niunaijun.blackbox.core.env.BEnvironment",
+        "top.niunaijun.blackbox.core.env.AppSystemEnv",
+        "top.niunaijun.blackbox.core.system.DaemonService",
+        "top.niunaijun.blackbox.core.system.ServiceManager",
+        "top.niunaijun.blackbox.core.system.user.BUserHandle",
+        "top.niunaijun.blackbox.core.system.user.BUserInfo",
+        "top.niunaijun.blackbox.entity.pm.InstallOption",
+        "top.niunaijun.blackbox.entity.pm.InstallResult",
+        "top.niunaijun.blackbox.entity.pm.InstalledModule",
+        "top.niunaijun.blackbox.fake.hook.HookManager",
+        "top.niunaijun.blackbox.proxy.ProxyManifest",
+        "top.niunaijun.blackbox.fake.frameworks.BXposedManager",
+        "top.niunaijun.blackbox.fake.frameworks.BActivityManager",
+        "top.niunaijun.blackbox.fake.frameworks.BJobManager",
+        "top.niunaijun.blackbox.fake.frameworks.BPackageManager",
+        "top.niunaijun.blackbox.fake.frameworks.BStorageManager",
+        "top.niunaijun.blackbox.fake.frameworks.BUserManager",
+        "top.niunaijun.blackbox.fake.delegate.ContentProviderDelegate",
+        "top.niunaijun.blackbox.utils.FileUtils",
+        "top.niunaijun.blackbox.utils.ShellUtils",
+        "top.niunaijun.blackbox.utils.Slog",
+        "top.niunaijun.blackbox.utils.compat.BuildCompat",
+        "top.niunaijun.blackbox.utils.compat.BundleCompat",
+        "top.niunaijun.blackbox.utils.compat.XposedParserCompat",
+        "top.niunaijun.blackbox.utils.provider.ProviderCall",
+        "top.niunaijun.blackbox.fake.service.IPackageManagerProxy",
+        "top.niunaijun.blackbox.fake.service.IActivityManagerProxy"
+    ]
 }
