@@ -158,8 +158,8 @@ public class IOCore {
                         rule.put(androidDir, external.getAbsolutePath() + "/Android");
                     }
                 } else {
-                    rule.put(sdcardPath + "/Android", external.getAbsolutePath());
-                    rule.put(androidDir, external.getAbsolutePath());
+                    rule.put(sdcardPath + "/Android", external.getAbsolutePath() + "/Android");
+                    rule.put(androidDir, external.getAbsolutePath() + "/Android");
                 }
                 rule.put(sdcardPath + "/Android/obb", external.getAbsolutePath() + "/Android/obb");
                 rule.put(androidDir + "/obb", external.getAbsolutePath() + "/Android/obb");
