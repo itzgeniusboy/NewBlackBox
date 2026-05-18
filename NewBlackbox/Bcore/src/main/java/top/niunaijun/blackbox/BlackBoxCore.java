@@ -1834,7 +1834,7 @@ public class BlackBoxCore extends ClientConfiguration {
     
     public static void installSystemHooks() {
         try {
-            SimpleCrashFix.installSimpleFix();
+            StackTraceFilter.install();
             Slog.d(TAG, "System hooks installed successfully");
         } catch (Exception e) {
             Slog.e(TAG, "Failed to install system hooks", e);
