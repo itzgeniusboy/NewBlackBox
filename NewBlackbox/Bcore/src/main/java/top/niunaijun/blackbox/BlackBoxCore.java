@@ -101,20 +101,10 @@ public class BlackBoxCore extends ClientConfiguration {
     
     static {
         try {
-            SimpleCrashFix.installSimpleFix();
-            Slog.d(TAG, "Simple crash fix installed at class loading time");
             StackTraceFilter.install();
             Slog.d(TAG, "Stack trace filter installed at class loading time");
-            SocialMediaAppCrashPrevention.initialize();
-            Slog.d(TAG, "Social media app crash prevention initialized at class loading time");
-            DexCrashPrevention.initialize();
-            Slog.d(TAG, "DEX crash prevention initialized at class loading time");
-            NativeCrashPrevention.initialize();
-            Slog.d(TAG, "Native crash prevention initialized at class loading time");
-            CrashMonitor.initialize();
-            Slog.d(TAG, "Comprehensive crash monitoring initialized at class loading time");
         } catch (Exception e) {
-            Slog.w(TAG, "Failed to install simple crash fix or stack trace filter at class loading: " + e.getMessage());
+            Slog.w(TAG, "Failed to install stack trace filter at class loading: " + e.getMessage());
         }
     }
     
