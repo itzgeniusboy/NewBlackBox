@@ -238,7 +238,7 @@ Java_com_onecore_loader_libhelper_DownloadZip_PASSJKPAPA(JNIEnv *env, jobject th
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_onecore_loader_activity_MainActivity_FixCrash(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBFUSCATE("https://github.com/OneCoreServer/OneCoreLoaderLib/releases/download/OneCore-Loader/Saved.zip"));
+    return env->NewStringUTF(OBFUSCATE("https://github.com/ravipacharpro-jpg/onecore-Offset-Pro/releases/download/Loader/Saved.zip"));
 }
 
 extern "C"
