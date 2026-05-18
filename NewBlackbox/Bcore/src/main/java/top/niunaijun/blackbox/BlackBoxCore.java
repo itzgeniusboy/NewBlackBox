@@ -58,15 +58,10 @@ import top.niunaijun.blackbox.proxy.ProxyManifest;
 import top.niunaijun.blackbox.utils.FileUtils;
 import top.niunaijun.blackbox.utils.ShellUtils;
 import top.niunaijun.blackbox.utils.Slog;
-import top.niunaijun.blackbox.utils.SimpleCrashFix;
 import top.niunaijun.blackbox.utils.compat.BuildCompat;
 import top.niunaijun.blackbox.utils.compat.BundleCompat;
 import top.niunaijun.blackbox.utils.provider.ProviderCall;
 import top.niunaijun.blackbox.utils.StackTraceFilter;
-import top.niunaijun.blackbox.utils.SocialMediaAppCrashPrevention;
-import top.niunaijun.blackbox.utils.DexCrashPrevention;
-import top.niunaijun.blackbox.utils.NativeCrashPrevention;
-import top.niunaijun.blackbox.utils.CrashMonitor;
 import top.niunaijun.blackbox.utils.StoragePermissionHelper;
 import top.niunaijun.blackbox.utils.LogSender;
 // ===== NAYA IMPORT =====
@@ -101,20 +96,10 @@ public class BlackBoxCore extends ClientConfiguration {
     
     static {
         try {
-            SimpleCrashFix.installSimpleFix();
-            Slog.d(TAG, "Simple crash fix installed at class loading time");
             StackTraceFilter.install();
             Slog.d(TAG, "Stack trace filter installed at class loading time");
-            SocialMediaAppCrashPrevention.initialize();
-            Slog.d(TAG, "Social media app crash prevention initialized at class loading time");
-            DexCrashPrevention.initialize();
-            Slog.d(TAG, "DEX crash prevention initialized at class loading time");
-            NativeCrashPrevention.initialize();
-            Slog.d(TAG, "Native crash prevention initialized at class loading time");
-            CrashMonitor.initialize();
-            Slog.d(TAG, "Comprehensive crash monitoring initialized at class loading time");
         } catch (Exception e) {
-            Slog.w(TAG, "Failed to install simple crash fix or stack trace filter at class loading: " + e.getMessage());
+            Slog.w(TAG, "Failed to install stack trace filter at class loading: " + e.getMessage());
         }
     }
     
@@ -1849,7 +1834,7 @@ public class BlackBoxCore extends ClientConfiguration {
     
     public static void installSystemHooks() {
         try {
-            SimpleCrashFix.installSimpleFix();
+            StackTraceFilter.install();
             Slog.d(TAG, "System hooks installed successfully");
         } catch (Exception e) {
             Slog.e(TAG, "Failed to install system hooks", e);
