@@ -58,15 +58,10 @@ import top.niunaijun.blackbox.proxy.ProxyManifest;
 import top.niunaijun.blackbox.utils.FileUtils;
 import top.niunaijun.blackbox.utils.ShellUtils;
 import top.niunaijun.blackbox.utils.Slog;
-import top.niunaijun.blackbox.utils.SimpleCrashFix;
 import top.niunaijun.blackbox.utils.compat.BuildCompat;
 import top.niunaijun.blackbox.utils.compat.BundleCompat;
 import top.niunaijun.blackbox.utils.provider.ProviderCall;
 import top.niunaijun.blackbox.utils.StackTraceFilter;
-import top.niunaijun.blackbox.utils.SocialMediaAppCrashPrevention;
-import top.niunaijun.blackbox.utils.DexCrashPrevention;
-import top.niunaijun.blackbox.utils.NativeCrashPrevention;
-import top.niunaijun.blackbox.utils.CrashMonitor;
 import top.niunaijun.blackbox.utils.StoragePermissionHelper;
 import top.niunaijun.blackbox.utils.LogSender;
 // ===== NAYA IMPORT =====
