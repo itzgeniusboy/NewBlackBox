@@ -181,3 +181,22 @@ def writeAarDetailsTask = tasks.register("writeAarDetails") {
 tasks.matching { it.name in ["assemble", "assembleDebug", "assembleRelease"] }.configureEach {
     finalizedBy(writeAarDetailsTask)
 }
+
+
+def packageAarWithDetailsTask = tasks.register("packageAarWithDetails", Zip) {
+    dependsOn(writeAarDetailsTask)
+    dependsOn("assembleDebug", "assembleRelease")
+
+    def outDir = file("$buildDir/outputs/aar")
+    from(outDir) {
+        include "*.aar"
+        include "aar-details.json"
+    }
+
+    destinationDirectory.set(outDir)
+    archiveFileName.set("Bcore-aar-with-details.zip")
+}
+
+tasks.matching { it.name in ["assemble", "assembleDebug", "assembleRelease"] }.configureEach {
+    finalizedBy(packageAarWithDetailsTask)
+}
