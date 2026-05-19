@@ -24,6 +24,7 @@ import black.android.app.ContextImpl;
 import black.android.content.pm.BRPackageManager;
 import top.niunaijun.blackbox.BlackBoxCore;
 import top.niunaijun.blackbox.app.BActivityThread;
+import top.niunaijun.blackbox.core.AuthCompatibilityCore;
 import top.niunaijun.blackbox.core.env.AppSystemEnv;
 import top.niunaijun.blackbox.fake.FakeCore;
 import top.niunaijun.blackbox.fake.hook.BinderInvocationStub;
@@ -140,11 +141,9 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             }
             
             
-            if ("com.android.vending".equals(packageName)) {
-                return createFakeGooglePlayStorePackageInfo();
-            }
-            if ("com.google.android.gms".equals(packageName)) {
-                return createFakeGooglePlayServicesPackageInfo();
+            PackageInfo compatPackageInfo = AuthCompatibilityCore.createCompatPackageInfo(packageName);
+            if (compatPackageInfo != null) {
+                return compatPackageInfo;
             }
             
             PackageInfo packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, flags, BlackBoxCore.getUserId());
@@ -169,37 +168,6 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             return null;
         }
         
-        private PackageInfo createFakeGooglePlayStorePackageInfo() {
-            PackageInfo packageInfo = new PackageInfo();
-            packageInfo.packageName = "com.android.vending";
-            packageInfo.versionName = "33.8.16-21";
-            packageInfo.versionCode = 83381621;
-            
-            ApplicationInfo appInfo = new ApplicationInfo();
-            appInfo.packageName = "com.android.vending";
-            appInfo.name = "Google Play Store";
-            appInfo.flags = ApplicationInfo.FLAG_SYSTEM;
-            appInfo.uid = 10001; 
-            packageInfo.applicationInfo = appInfo;
-            
-            Slog.d(TAG, "GetPackageInfo: Providing fake Google Play Store info");
-            return packageInfo;
-        }
-
-        private PackageInfo createFakeGooglePlayServicesPackageInfo() {
-            PackageInfo packageInfo = new PackageInfo();
-            packageInfo.packageName = "com.google.android.gms";
-            packageInfo.versionCode = 250505301;
-            packageInfo.versionName = "25.05.53";
-
-            ApplicationInfo appInfo = new ApplicationInfo();
-            appInfo.packageName = "com.google.android.gms";
-            appInfo.enabled = true;
-            packageInfo.applicationInfo = appInfo;
-
-            Slog.d(TAG, "GetPackageInfo: Providing fake Google Play Services info");
-            return packageInfo;
-        }
     }
 
     @ProxyMethod("getPackageUid")
@@ -575,10 +543,26 @@ public class IPackageManagerProxy extends BinderInvocationStub {
     public static class DisableIconLoading extends MethodHook {
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            
-            Slog.d(TAG, "Blocking icon loading to prevent resource errors");
-            return null; 
+            final String currentPkg = BActivityThread.getAppPackageName();
+            if (shouldBypassIconLoading(currentPkg)) {
+                Slog.d(TAG, "Bypassing icon loading for unstable package: " + currentPkg);
+                return null;
+            }
+            try {
+                return method.invoke(who, args);
+            } catch (Throwable e) {
+                Slog.w(TAG, "getDrawable failed for " + currentPkg + ", fallback to null: " + e.getMessage());
+                return null;
+            }
         }
+    }
+
+
+    private static boolean shouldBypassIconLoading(String packageName) {
+        if (packageName == null) return false;
+        return packageName.equals("com.google.android.gms")
+                || packageName.equals("com.android.vending")
+                || packageName.startsWith("com.facebook.");
     }
 
     
