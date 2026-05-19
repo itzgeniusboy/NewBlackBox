@@ -1,18 +1,19 @@
 package net_62v.external
 
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import org.json.JSONObject
-import java.io.BufferedWriter
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.concurrent.Executors
+import java.io.IOException
 
 object OneCoreValidator {
     private const val DEFAULT_API_URL = "https://your-app-url.vercel.app/api/v1/license/verify"
-    private const val CONNECT_TIMEOUT_MS = 10000
-    private const val READ_TIMEOUT_MS = 10000
 
-    private val executor = Executors.newSingleThreadExecutor()
+    private val client: OkHttpClient = OkHttpClient.Builder().build()
 
     @Volatile
     private var apiUrl: String = DEFAULT_API_URL
@@ -34,46 +35,39 @@ object OneCoreValidator {
             return
         }
 
-        executor.execute {
-            var connection: HttpURLConnection? = null
-            try {
-                val payload = JSONObject().apply {
-                    put("packageName", packageName)
-                    put("licenseKey", licenseKey)
-                }.toString()
-
-                connection = (URL(apiUrl).openConnection() as HttpURLConnection).apply {
-                    requestMethod = "POST"
-                    connectTimeout = CONNECT_TIMEOUT_MS
-                    readTimeout = READ_TIMEOUT_MS
-                    doInput = true
-                    doOutput = true
-                    setRequestProperty("Content-Type", "application/json")
-                    setRequestProperty("Accept", "application/json")
-                }
-
-                BufferedWriter(OutputStreamWriter(connection.outputStream, Charsets.UTF_8)).use { writer ->
-                    writer.write(payload)
-                    writer.flush()
-                }
-
-                val code = connection.responseCode
-                val raw = if (code in 200..299) {
-                    connection.inputStream?.bufferedReader()?.use { it.readText() } ?: "{}"
-                } else {
-                    connection.errorStream?.bufferedReader()?.use { it.readText() } ?: "{}"
-                }
-
-                val json = JSONObject(raw)
-                val success = json.optBoolean("success", false)
-                val message = json.optString("message", if (success) "License verified" else "License verification failed")
-
-                callback(success, message)
-            } catch (e: Exception) {
-                callback(false, "Network Error: ${e.message}")
-            } finally {
-                connection?.disconnect()
-            }
+        val json = JSONObject().apply {
+            put("packageName", packageName)
+            put("licenseKey", licenseKey)
         }
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .post(json.toString().toRequestBody("application/json".toMediaType()))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback(false, "Network Error: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    val raw = response.body?.string().orEmpty()
+                    if (raw.isBlank()) {
+                        callback(false, "Empty response from server")
+                        return
+                    }
+
+                    try {
+                        val jsonResponse = JSONObject(raw)
+                        val success = jsonResponse.optBoolean("success", false)
+                        val message = jsonResponse.optString("message", if (success) "License verified" else "License verification failed")
+                        callback(success, message)
+                    } catch (_: Exception) {
+                        callback(false, "Invalid server response")
+                    }
+                }
+            }
+        })
     }
 }
