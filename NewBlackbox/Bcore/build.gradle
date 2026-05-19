@@ -153,3 +153,31 @@ BlackObfuscator {
         "top.niunaijun.blackbox.fake.service.IActivityManagerProxy"
     ]
 }
+
+
+def writeAarDetailsTask = tasks.register("writeAarDetails") {
+    doLast {
+        def outDir = file("$buildDir/outputs/aar")
+        outDir.mkdirs()
+
+        def details = [
+                name         : "NewBlackBox Bcore",
+                module       : ":Bcore",
+                packageName  : android.namespace,
+                buildTypes   : ["debug", "release"],
+                minSdk       : android.defaultConfig.minSdkVersion?.apiLevel,
+                compileSdk   : android.compileSdk,
+                generatedAt  : new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX"),
+                outputPath   : outDir.absolutePath,
+                aarFiles     : outDir.exists() ? outDir.listFiles().findAll { it.name.endsWith('.aar') }.collect { it.name }.sort() : []
+        ]
+
+        def detailsFile = new File(outDir, "aar-details.json")
+        detailsFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(details))
+        println("AAR details written: ${detailsFile.absolutePath}")
+    }
+}
+
+tasks.matching { it.name in ["assemble", "assembleDebug", "assembleRelease"] }.configureEach {
+    finalizedBy(writeAarDetailsTask)
+}
