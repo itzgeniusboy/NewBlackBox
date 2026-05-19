@@ -1,0 +1,8 @@
+{
+  "name": "NewBlackBox Bcore",
+  "module": ":Bcore",
+  "packageName": "top.niunaijun.blackbox",
+  "aarFilePattern": "Bcore-<buildType>.aar",
+  "buildTypes": ["debug", "release"],
+  "outputPath": "NewBlackbox/Bcore/build/outputs/aar/"
+}
