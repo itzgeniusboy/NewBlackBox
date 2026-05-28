@@ -5,73 +5,114 @@
     android:id="@+id/main_root"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:background="#000000"
+    android:background="#030608"
     android:padding="7.0dip"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-    
+
+    <!-- ═══ TOP NEON BAR ═══ -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2.0dip"
+        android:layout_marginBottom="4.0dip"
+        android:background="@drawable/gaming_top_bar_gradient" />
+
+    <!-- ═══ TOP ROW: Settings Button ═══ -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp">
 
+        <!-- Server status left -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_gravity="start|center_vertical"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp">
+
+            <View
+                android:layout_width="7.0dip"
+                android:layout_height="7.0dip"
+                android:background="@drawable/gaming_status_dot"
+                android:layout_marginEnd="5.0dip" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ONLINE"
+                android:textColor="#00FF88"
+                android:textSize="9.0sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2" />
+
+        </LinearLayout>
+
+        <!-- Settings icon right -->
         <ImageView
             android:id="@+id/btn_settings"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_gravity="end"
             android:src="@drawable/ic_advanced_settings"
-            android:background="@drawable/ios_icon_bg"
-            android:padding="11dp"
-            android:contentDescription="Settings"/>
+            android:background="@drawable/gaming_icon_bg"
+            android:padding="10dp"
+            android:contentDescription="Settings" />
+
     </FrameLayout>
 
-
-    <!-- Premium Header with Timer -->
+    <!-- ═══ SUBSCRIPTION TIMER CARD ═══ -->
     <LinearLayout
         android:orientation="vertical"
-        android:background="@drawable/ios_header_bg"
-        android:padding="8.0dip"
+        android:background="@drawable/gaming_card_bg"
+        android:padding="12.0dip"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp">
 
+        <!-- Top bracket bar -->
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2.0dip"
+            android:layout_marginBottom="10.0dip"
+            android:background="@drawable/gaming_top_bar_gradient" />
+
         <TextView
-            android:textSize="20.0sp"
-            android:textColor="#4DB8FF"
+            android:textSize="11.0sp"
+            android:textColor="#00F0FF"
             android:gravity="center"
             android:layout_gravity="center"
             android:id="@+id/PremiumFileManager"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your Premium Subscription Ends On"
+            android:text="// YOUR PREMIUM SUBSCRIPTION ENDS ON //"
             android:fontFamily="@font/acme"
-            android:letterSpacing="0.05"
-            android:shadowColor="#334DB8FF"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="3"/>
+            android:letterSpacing="0.12" />
 
-        <!-- iOS Style Timer - Clean Design -->
+        <!-- Timer Row -->
         <LinearLayout
             android:gravity="center"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:padding="8dp">
+            android:layout_marginTop="10dp"
+            android:padding="4dp">
 
+            <!-- DAYS -->
             <LinearLayout
                 android:gravity="center"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="@drawable/gaming_timer_box"
+                android:padding="8dp">
 
                 <TextView
                     android:textSize="28.0sp"
-                    android:textColor="#4DB8FF"
+                    android:textColor="#00F0FF"
                     android:gravity="center"
                     android:id="@+id/tv_d"
                     android:layout_width="fill_parent"
@@ -79,40 +120,44 @@
                     android:text="00"
                     android:fontFamily="@font/acme"
                     android:textStyle="bold"
-                    android:letterSpacing="0.05"/>
+                    android:letterSpacing="0.05" />
 
                 <TextView
-                    android:textSize="10.0sp"
-                    android:textColor="#9AB4FF"
+                    android:textSize="9.0sp"
+                    android:textColor="#4400F0FF"
                     android:gravity="center"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="DAY"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/acme"/>
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.2" />
 
             </LinearLayout>
 
             <TextView
-                android:textSize="28.0sp"
+                android:textSize="24.0sp"
                 android:textStyle="bold"
-                android:textColor="#4DB8FF"
-                android:padding="2.0dip"
+                android:textColor="#00F0FF"
+                android:padding="4.0dip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=":"
-                android:fontFamily="@font/acme"/>
+                android:fontFamily="@font/acme" />
 
+            <!-- HOURS -->
             <LinearLayout
                 android:gravity="center"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="@drawable/gaming_timer_box"
+                android:padding="8dp">
 
                 <TextView
                     android:textSize="28.0sp"
-                    android:textColor="#4DB8FF"
+                    android:textColor="#00F0FF"
                     android:gravity="center"
                     android:id="@+id/tv_h"
                     android:layout_width="fill_parent"
@@ -120,40 +165,44 @@
                     android:text="00"
                     android:fontFamily="@font/acme"
                     android:textStyle="bold"
-                    android:letterSpacing="0.05"/>
+                    android:letterSpacing="0.05" />
 
                 <TextView
-                    android:textSize="10.0sp"
-                    android:textColor="#9AB4FF"
+                    android:textSize="9.0sp"
+                    android:textColor="#4400F0FF"
                     android:gravity="center"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="HOURS"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/acme"/>
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.2" />
 
             </LinearLayout>
 
             <TextView
-                android:textSize="28.0sp"
+                android:textSize="24.0sp"
                 android:textStyle="bold"
-                android:textColor="#4DB8FF"
-                android:padding="2.0dip"
+                android:textColor="#00F0FF"
+                android:padding="4.0dip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=":"
-                android:fontFamily="@font/acme"/>
+                android:fontFamily="@font/acme" />
 
+            <!-- MINUTES -->
             <LinearLayout
                 android:gravity="center"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="@drawable/gaming_timer_box"
+                android:padding="8dp">
 
                 <TextView
                     android:textSize="28.0sp"
-                    android:textColor="#4DB8FF"
+                    android:textColor="#00F0FF"
                     android:gravity="center"
                     android:id="@+id/tv_m"
                     android:layout_width="fill_parent"
@@ -161,40 +210,44 @@
                     android:text="00"
                     android:fontFamily="@font/acme"
                     android:textStyle="bold"
-                    android:letterSpacing="0.05"/>
+                    android:letterSpacing="0.05" />
 
                 <TextView
-                    android:textSize="10.0sp"
-                    android:textColor="#9AB4FF"
+                    android:textSize="9.0sp"
+                    android:textColor="#4400F0FF"
                     android:gravity="center"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="MINUTE"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/acme"/>
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.2" />
 
             </LinearLayout>
 
             <TextView
-                android:textSize="28.0sp"
+                android:textSize="24.0sp"
                 android:textStyle="bold"
-                android:textColor="#4DB8FF"
-                android:padding="2.0dip"
+                android:textColor="#00F0FF"
+                android:padding="4.0dip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=":"
-                android:fontFamily="@font/acme"/>
+                android:fontFamily="@font/acme" />
 
+            <!-- SECONDS -->
             <LinearLayout
                 android:gravity="center"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="@drawable/gaming_timer_box"
+                android:padding="8dp">
 
                 <TextView
                     android:textSize="28.0sp"
-                    android:textColor="#4DB8FF"
+                    android:textColor="#FF003C"
                     android:gravity="center"
                     android:id="@+id/tv_s"
                     android:layout_width="fill_parent"
@@ -202,174 +255,295 @@
                     android:text="00"
                     android:fontFamily="@font/acme"
                     android:textStyle="bold"
-                    android:letterSpacing="0.05"/>
+                    android:letterSpacing="0.05" />
 
                 <TextView
-                    android:textSize="10.0sp"
-                    android:textColor="#9AB4FF"
+                    android:textSize="9.0sp"
+                    android:textColor="#44FF003C"
                     android:gravity="center"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="SECOND"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/acme"/>
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.2" />
 
             </LinearLayout>
 
         </LinearLayout>
 
+        <!-- Bottom bracket bar -->
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1.0dip"
+            android:layout_marginTop="10.0dip"
+            android:background="@drawable/gaming_divider_gradient" />
+
     </LinearLayout>
 
+    <!-- ═══ WELCOME TEXT ═══ -->
     <TextView
         android:id="@+id/tv_welcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:layout_marginBottom="16dp"
-        android:text="Welcome To OneCore Server"
-        android:textColor="#A9D8FF"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="▸  Welcome To OneCore Server  ◂"
+        android:textColor="#00F0FF"
         android:textStyle="bold"
         android:fontFamily="@font/acme"
-        android:textSize="20sp"
-        android:letterSpacing="0.08"
-        android:shadowColor="#664DB8FF"
-        android:shadowRadius="8"
-        android:shadowDx="0"
-        android:shadowDy="0"/>
+        android:textSize="16sp"
+        android:letterSpacing="0.1" />
 
-
-    <!-- Game Selection Section -->
+    <!-- ═══ GAME SELECTION CARD ═══ -->
     <LinearLayout
         android:orientation="vertical"
-        android:background="@drawable/ios_card_bg"
+        android:background="@drawable/gaming_card_bg"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15.0dip"
+        android:layout_marginTop="4.0dip"
         android:padding="12dp">
+
+        <!-- Card title bar -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10.0dip">
+
+            <View
+                android:layout_width="3.0dip"
+                android:layout_height="16.0dip"
+                android:background="#00F0FF"
+                android:layout_marginEnd="8.0dip" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SELECT GAME"
+                android:textColor="#00F0FF"
+                android:textSize="10.0sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:gravity="center"
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp">
+            android:layout_height="wrap_content">
 
-    <!-- Game Info Card -->
-    <LinearLayout
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:background="@drawable/ios_card_bg"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10.0dip"
-        android:padding="16dp">
-
-        <LinearLayout
-            android:gravity="center"
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <ImageView
-                android:layout_width="65.0dip"
-                android:layout_height="65.0dip"
-                android:src="@drawable/pubg_india"
-                android:scaleType="fitCenter"/>
-
-            <TextView
-                android:textSize="16.0sp"
-                android:textColor="#ffffffff"
+            <!-- Game Info Row -->
+            <LinearLayout
                 android:gravity="center"
-                android:id="@+id/IndiaName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10.0dip"
-                android:text="BGMI India Edition"
-                android:fontFamily="@font/acme"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:textSize="11.0sp"
-                android:textColor="#9AB4FF"
-                android:gravity="center"
-                android:id="@+id/IndiaVersion"
-                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/gaming_inner_card"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4.0dip"
-                android:text="Latest Supported Version"
-                android:fontFamily="@font/acme"/>
+                android:padding="14dp">
+
+                <LinearLayout
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <!-- Game icon with neon border -->
+                    <FrameLayout
+                        android:layout_width="72.0dip"
+                        android:layout_height="72.0dip">
+
+                        <ImageView
+                            android:layout_width="72.0dip"
+                            android:layout_height="72.0dip"
+                            android:src="@drawable/pubg_india"
+                            android:background="@drawable/gaming_logo_border"
+                            android:scaleType="fitCenter"
+                            android:padding="4dp" />
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:textSize="15.0sp"
+                        android:textColor="#FFFFFF"
+                        android:gravity="center"
+                        android:id="@+id/IndiaName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10.0dip"
+                        android:text="BGMI India Edition"
+                        android:fontFamily="@font/acme"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05" />
+
+                    <TextView
+                        android:textSize="10.0sp"
+                        android:textColor="#4400F0FF"
+                        android:gravity="center"
+                        android:id="@+id/IndiaVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3.0dip"
+                        android:text="Latest Supported Version"
+                        android:fontFamily="@font/acme"
+                        android:letterSpacing="0.05" />
+
+                    <!-- Install Button -->
+                    <FrameLayout
+                        android:layout_width="110.0dip"
+                        android:layout_height="34.0dip"
+                        android:layout_marginTop="12dp">
+
+                        <TextView
+                            android:textSize="11.0sp"
+                            android:textColor="#00F0FF"
+                            android:gravity="center"
+                            android:id="@+id/installIndia"
+                            android:background="@drawable/gaming_install_button"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:text="▶ INSTALL / UPDATE"
+                            android:fontFamily="@font/acme"
+                            android:letterSpacing="0.05" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Launch Game Button -->
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="50.0dip"
+                android:layout_marginTop="16.0dip">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    app:cardBackgroundColor="#001a22"
+                    app:cardCornerRadius="6.0dip"
+                    app:cardElevation="6dp">
+
+                    <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:background="@drawable/gaming_button_bg" />
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Corner brackets -->
+                <View android:layout_width="8dp" android:layout_height="8dp"
+                    android:layout_gravity="top|start"
+                    android:background="@drawable/gaming_corner_tl" />
+                <View android:layout_width="8dp" android:layout_height="8dp"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/gaming_corner_tr" />
+                <View android:layout_width="8dp" android:layout_height="8dp"
+                    android:layout_gravity="bottom|start"
+                    android:background="@drawable/gaming_corner_bl" />
+                <View android:layout_width="8dp" android:layout_height="8dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/gaming_corner_br" />
+
+                <TextView
+                    android:textSize="16.0sp"
+                    android:textStyle="bold"
+                    android:textColor="#00F0FF"
+                    android:gravity="center"
+                    android:id="@+id/btn_start_game"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:text="▶  LAUNCH GAME  ◀"
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.15" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- ═══ ANNOUNCEMENT CARD ═══ -->
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@drawable/gaming_card_bg"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8.0dip"
+        android:padding="14dp">
+
+        <!-- Title bar -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8.0dip">
+
+            <View
+                android:layout_width="3.0dip"
+                android:layout_height="16.0dip"
+                android:background="#FF003C"
+                android:layout_marginEnd="8.0dip" />
 
             <TextView
                 android:textSize="13.0sp"
-                android:textColor="#4DB8FF"
-                android:gravity="center"
-                android:id="@+id/installIndia"
-                android:background="@drawable/ios_install_button"
-                android:layout_width="100.0dip"
-                android:layout_height="34.0dip"
-                android:text="INSTALL / UPDATE"
+                android:textStyle="bold"
+                android:textColor="#FF003C"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/tv_announcement"
+                android:text="⚡ OneCore Premium Notice"
                 android:fontFamily="@font/acme"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:layout_marginTop="12dp"/>
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LIVE"
+                android:textColor="#FF003C"
+                android:textSize="8.0sp"
+                android:fontFamily="monospace"
+                android:background="@drawable/gaming_live_badge"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:letterSpacing="0.1" />
 
         </LinearLayout>
 
-
-        </LinearLayout>
-
-        <!-- iOS Style Start Game Button -->
-        <TextView
-            android:textSize="18.0sp"
-            android:textStyle="bold"
-            android:textColor="#DFFBFF"
-            android:gravity="center"
-            android:id="@+id/btn_start_game"
-            android:background="@drawable/ios_start_button"
+        <View
             android:layout_width="fill_parent"
-            android:layout_height="48.0dip"
-            android:layout_marginTop="20.0dip"
-            android:text="LAUNCH GAME"
-            android:fontFamily="@font/acme"
-            android:letterSpacing="0.1"/>
-
-    </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Announcement Section -->
-    <LinearLayout
-        android:gravity="center"
-        android:orientation="vertical"
-        android:background="@drawable/ios_card_bg"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10.0dip"
-        android:padding="14dp">
+            android:layout_height="1.0dip"
+            android:layout_marginBottom="10.0dip"
+            android:background="@drawable/gaming_red_divider" />
 
         <TextView
-            android:textSize="18.0sp"
-            android:textStyle="bold"
-            android:textColor="#4DB8FF"
-            android:gravity="center"
-            android:id="@+id/tv_announcement"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="OneCore Premium Notice"
-            android:fontFamily="@font/acme"
-            android:letterSpacing="0.08"/>
-
-        <TextView
-            android:textSize="15.0sp"
-            android:textColor="#ffffffff"
+            android:textSize="13.0sp"
+            android:textColor="#CCFFFFFF"
             android:gravity="center"
             android:id="@+id/tv_announcement2"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8.0dip"
             android:text="Enjoy the journey with OneCore SDK."
-            android:fontFamily="@font/acme"/>
+            android:fontFamily="@font/acme"
+            android:letterSpacing="0.04" />
 
     </LinearLayout>
+
+    <!-- ═══ BOTTOM NEON BAR ═══ -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2.0dip"
+        android:layout_marginTop="8.0dip"
+        android:background="@drawable/gaming_red_bar_gradient" />
+
 </LinearLayout>
