@@ -1,230 +1,534 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:background="#000000"
+    android:background="#030608"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layoutDirection="locale"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  BACKGROUND LAYER — particles container     -->
+    <!-- ═══════════════════════════════════════════ -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:fillViewport="true">
-        
+
         <FrameLayout
             android:id="@+id/particles_container"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-            
+            android:layout_height="fill_parent"
+            android:background="@drawable/gaming_grid_bg" />
+
     </androidx.core.widget.NestedScrollView>
-    
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  TOP NEON BAR                               -->
+    <!-- ═══════════════════════════════════════════ -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="3.0dip"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/gaming_top_bar_gradient" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  BOTTOM NEON BAR                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="3.0dip"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/gaming_red_bar_gradient" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  MAIN CONTENT                               -->
+    <!-- ═══════════════════════════════════════════ -->
     <LinearLayout
         android:gravity="center"
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-        
-        <!-- Logo Section -->
+        android:layout_height="fill_parent"
+        android:paddingStart="28.0dip"
+        android:paddingEnd="28.0dip">
+
+        <!-- ─── STATUS ROW ─── -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20.0dip">
+
+            <!-- Online dot -->
+            <View
+                android:layout_width="8.0dip"
+                android:layout_height="8.0dip"
+                android:background="@drawable/gaming_status_dot"
+                android:layout_marginEnd="6.0dip" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SERVER ONLINE"
+                android:textColor="#00FF88"
+                android:textSize="9.0sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="v3.7.1 // ELITE"
+                android:textColor="#44FFFFFF"
+                android:textSize="9.0sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.1" />
+
+        </LinearLayout>
+
+        <!-- ─── LOGO SECTION ─── -->
         <LinearLayout
             android:gravity="center"
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-            
+
+            <!-- Logo with ring -->
             <FrameLayout
                 android:id="@+id/logoAnimator"
-                android:background="@drawable/logo_premium_border"
-                android:layout_width="120.0dip"
-                android:layout_height="120.0dip"
+                android:layout_width="130.0dip"
+                android:layout_height="130.0dip"
                 android:elevation="20.0dip">
-                
-                <ImageView
+
+                <!-- Outer rotating ring -->
+                <View
+                    android:layout_width="130.0dip"
+                    android:layout_height="130.0dip"
                     android:layout_gravity="center"
-                    android:layout_width="100.0dip"
-                    android:layout_height="100.0dip"
-                    android:src="@drawable/ic_new_update"
-                    android:contentDescription="VIP LOGO"
-                    android:alpha="0.95" />
-                    
+                    android:background="@drawable/gaming_logo_ring" />
+
+                <!-- Logo box -->
+                <FrameLayout
+                    android:layout_width="110.0dip"
+                    android:layout_height="110.0dip"
+                    android:layout_gravity="center"
+                    android:background="@drawable/gaming_logo_border"
+                    android:elevation="4.0dip">
+
+                    <ImageView
+                        android:layout_gravity="center"
+                        android:layout_width="80.0dip"
+                        android:layout_height="80.0dip"
+                        android:src="@drawable/ic_new_update"
+                        android:contentDescription="VIP LOGO"
+                        android:alpha="1.0" />
+
+                </FrameLayout>
+
             </FrameLayout>
-            
-            <!-- Title - No Gap -->
+
+            <!-- Brand Title -->
             <LinearLayout
-                android:orientation="horizontal"
+                android:orientation="vertical"
+                android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10.0dip">
-                
-                <TextView
-                    android:textSize="28.0sp"
-                    android:textStyle="bold"
-                    android:textColor="#4DB8FF"
-                    android:id="@+id/textVip1"
+                android:layout_marginTop="14.0dip">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="OneCore "
-                    android:fontFamily="@font/acme"
-                    android:letterSpacing="0.05" />
-                    
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:textSize="26.0sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:id="@+id/textVip1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ONE"
+                        android:fontFamily="@font/acme"
+                        android:letterSpacing="0.1" />
+
+                    <TextView
+                        android:textSize="26.0sp"
+                        android:textStyle="bold"
+                        android:textColor="#00F0FF"
+                        android:id="@+id/textVip2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CORE"
+                        android:fontFamily="@font/acme"
+                        android:letterSpacing="0.1" />
+
+                </LinearLayout>
+
                 <TextView
-                    android:textSize="28.0sp"
+                    android:textSize="15.0sp"
                     android:textStyle="bold"
-                    android:textColor="#4DB8FF"
-                    android:id="@+id/textVip2"
+                    android:textColor="#00F0FF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="ENGINE"
                     android:fontFamily="@font/acme"
-                    android:letterSpacing="0.05" />
-                    
+                    android:letterSpacing="0.3" />
+
             </LinearLayout>
-            
-            <!-- Subtitle - No Gap -->
+
+            <!-- Subtitle -->
             <TextView
-                android:textSize="14.0sp"
-                android:textColor="#FFFFFF"
+                android:textSize="10.0sp"
+                android:textColor="#66FFFFFF"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Elite Access Gateway"
+                android:text="▸  ELITE ACCESS GATEWAY  ◂"
                 android:fontFamily="@font/montserratsemibold"
-                android:letterSpacing="0.08" />
-                
+                android:letterSpacing="0.2"
+                android:layout_marginTop="4.0dip" />
+
         </LinearLayout>
-        
-        <!-- Login Form Section - No Gaps -->
+
+        <!-- ─── NEON DIVIDER ─── -->
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="20.0dip"
+            android:layout_marginTop="18.0dip"
+            android:layout_marginBottom="18.0dip">
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1.0dip"
+                android:layout_centerVertical="true"
+                android:background="@drawable/gaming_divider_gradient" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="◆"
+                android:textColor="#00F0FF"
+                android:textSize="10.0sp"
+                android:background="#030608"
+                android:paddingStart="8.0dip"
+                android:paddingEnd="8.0dip" />
+
+        </RelativeLayout>
+
+        <!-- ─── FORM SECTION ─── -->
         <LinearLayout
             android:gravity="center"
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20.0dip">
-            
-            <!-- Label - No Gap -->
+            android:layout_height="wrap_content">
+
+            <!-- Label -->
             <TextView
-                android:textSize="14.0sp"
-                android:textColor="#4DB8FF"
+                android:textSize="10.0sp"
+                android:textColor="#00F0FF"
                 android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ENTER YOUR PREMIUM LICENSE KEY"
+                android:text="// ENTER PREMIUM LICENSE KEY //"
                 android:fontFamily="@font/montserratsemibold"
-                android:letterSpacing="0.08"
-                android:layout_marginBottom="10.0dip" />
-            
-            <!-- Password Input Field -->
-            <LinearLayout
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:background="@drawable/premium_input_border"
+                android:letterSpacing="0.15"
+                android:layout_marginBottom="12.0dip" />
+
+            <!-- Input Field -->
+            <FrameLayout
                 android:layout_width="fill_parent"
-                android:layout_height="50.0dip"
-                android:layout_marginStart="30.0dip"
-                android:layout_marginEnd="30.0dip"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp">
-                
-                <ImageView
-                    android:id="@+id/vis_pwd"
-                    android:visibility="visible"
-                    android:layout_width="22.0dip"
-                    android:layout_height="22.0dip"
-                    android:src="@drawable/baseline_visibility_off_24"
-                    android:tint="#FFFFFF" />
-                    
-                <ImageView
-                    android:id="@+id/show_pwd"
-                    android:visibility="gone"
-                    android:layout_width="22.0dip"
-                    android:layout_height="22.0dip"
-                    android:src="@drawable/baseline_remove_red_eye_24"
-                    android:tint="#FFFFFF" />
-                    
-                <EditText
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#88FFFFFF"
+                android:layout_height="54.0dip">
+
+                <!-- Corner brackets -->
+                <View
+                    android:layout_width="10.0dip"
+                    android:layout_height="10.0dip"
+                    android:layout_gravity="top|start"
+                    android:background="@drawable/gaming_corner_tl" />
+                <View
+                    android:layout_width="10.0dip"
+                    android:layout_height="10.0dip"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/gaming_corner_tr" />
+                <View
+                    android:layout_width="10.0dip"
+                    android:layout_height="10.0dip"
+                    android:layout_gravity="bottom|start"
+                    android:background="@drawable/gaming_corner_bl" />
+                <View
+                    android:layout_width="10.0dip"
+                    android:layout_height="10.0dip"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/gaming_corner_br" />
+
+                <!-- Input row -->
+                <LinearLayout
                     android:gravity="center"
-                    android:id="@+id/textUsername"
-                    android:background="@drawable/transparent_code"
-                    android:layout_width="0dp"
+                    android:orientation="horizontal"
+                    android:background="@drawable/gaming_input_border"
+                    android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:ems="50"
-                    android:inputType="textPassword"
-                    android:textCursorDrawable="@drawable/premium_cursor"
-                    android:fontFamily="@font/poppinsregular"
-                    android:hint="Paste your access key"
-                    android:textSize="14sp" />
-                    
-                <ImageView
-                    android:id="@+id/paste"
-                    android:layout_width="22.0dip"
-                    android:layout_height="22.0dip"
-                    android:src="@drawable/ic_paste"
-                    android:tint="#FFFFFF" />
-                    
-            </LinearLayout>
-            
-            <!-- Login Button - No Gap -->
-            <androidx.cardview.widget.CardView
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp">
+
+                    <ImageView
+                        android:id="@+id/vis_pwd"
+                        android:visibility="visible"
+                        android:layout_width="20.0dip"
+                        android:layout_height="20.0dip"
+                        android:src="@drawable/baseline_visibility_off_24"
+                        android:tint="#00F0FF"
+                        android:alpha="0.7" />
+
+                    <ImageView
+                        android:id="@+id/show_pwd"
+                        android:visibility="gone"
+                        android:layout_width="20.0dip"
+                        android:layout_height="20.0dip"
+                        android:src="@drawable/baseline_remove_red_eye_24"
+                        android:tint="#00F0FF"
+                        android:alpha="0.7" />
+
+                    <EditText
+                        android:textColor="#FFFFFF"
+                        android:textColorHint="#44FFFFFF"
+                        android:gravity="center"
+                        android:id="@+id/textUsername"
+                        android:background="@drawable/transparent_code"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:ems="50"
+                        android:inputType="textPassword"
+                        android:textCursorDrawable="@drawable/premium_cursor"
+                        android:fontFamily="monospace"
+                        android:hint="PASTE ACCESS KEY"
+                        android:textSize="13sp"
+                        android:letterSpacing="0.1" />
+
+                    <ImageView
+                        android:id="@+id/paste"
+                        android:layout_width="20.0dip"
+                        android:layout_height="20.0dip"
+                        android:src="@drawable/ic_paste"
+                        android:tint="#00F0FF"
+                        android:alpha="0.7" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- Activate Button -->
+            <FrameLayout
                 android:id="@+id/init"
                 android:layout_width="fill_parent"
-                android:layout_height="45.0dip"
-                android:layout_marginTop="15.0dip"
-                android:layout_marginStart="30.0dip"
-                android:layout_marginEnd="30.0dip"
-                app:cardBackgroundColor="#111827"
-                app:cardCornerRadius="22.0dip"
-                app:cardElevation="6dp">
-                
+                android:layout_height="52.0dip"
+                android:layout_marginTop="14.0dip">
+
+                <!-- Button background -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    app:cardBackgroundColor="#001a22"
+                    app:cardCornerRadius="6.0dip"
+                    app:cardElevation="8dp">
+
+                    <!-- Shine layer -->
+                    <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:background="@drawable/gaming_button_bg" />
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Corner brackets on button -->
+                <View
+                    android:layout_width="8.0dip"
+                    android:layout_height="8.0dip"
+                    android:layout_gravity="top|start"
+                    android:background="@drawable/gaming_corner_tl" />
+                <View
+                    android:layout_width="8.0dip"
+                    android:layout_height="8.0dip"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/gaming_corner_tr" />
+                <View
+                    android:layout_width="8.0dip"
+                    android:layout_height="8.0dip"
+                    android:layout_gravity="bottom|start"
+                    android:background="@drawable/gaming_corner_bl" />
+                <View
+                    android:layout_width="8.0dip"
+                    android:layout_height="8.0dip"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/gaming_corner_br" />
+
+                <!-- Button text with arrows -->
                 <TextView
-                    android:textSize="18.0sp"
+                    android:textSize="13.0sp"
                     android:textStyle="bold"
-                    android:textColor="#4DB8FF"
+                    android:textColor="#00F0FF"
                     android:gravity="center"
                     android:id="@+id/btnSignIn"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:text="ACTIVATE ACCESS"
+                    android:text="▶  ACTIVATE ACCESS  ◀"
                     android:fontFamily="@font/acme"
-                    android:letterSpacing="0.1" />
-                    
-            </androidx.cardview.widget.CardView>
-            
-            <!-- Help Text - No Gap -->
+                    android:letterSpacing="0.2" />
+
+            </FrameLayout>
+
+            <!-- Help Text -->
             <LinearLayout
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12.0dip">
-                
+                android:layout_marginTop="14.0dip">
+
                 <TextView
                     android:textSize="12.0sp"
-                    android:textColor="#C7D7FF"
+                    android:textColor="#44FFFFFF"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Need a license key?"
+                    android:text="No license key?"
                     android:fontFamily="@font/poppinsregular" />
-                    
+
                 <TextView
                     android:textSize="12.0sp"
                     android:textStyle="bold"
-                    android:textColor="#4DB8FF"
+                    android:textColor="#FF003C"
                     android:gravity="center"
                     android:id="@+id/telegram"
                     android:clickable="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GET ACCESS"
+                    android:text="⚡ GET ACCESS"
                     android:fontFamily="@font/poppinsregular"
-                    android:layout_marginStart="5.0dip" />
-                    
+                    android:layout_marginStart="6.0dip" />
+
             </LinearLayout>
-            
+
         </LinearLayout>
-        
+
+        <!-- ─── STATS ROW ─── -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24.0dip"
+            android:paddingTop="16.0dip"
+            android:background="@drawable/gaming_stats_top_border">
+
+            <!-- Stat 1 -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="99.9%"
+                    android:textColor="#00F0FF"
+                    android:textSize="14.0sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UPTIME"
+                    android:textColor="#33FFFFFF"
+                    android:textSize="8.0sp"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="2.0dip" />
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="1.0dip"
+                android:layout_height="28.0dip"
+                android:background="#22FFFFFF" />
+
+            <!-- Stat 2 -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="256-BIT"
+                    android:textColor="#00F0FF"
+                    android:textSize="14.0sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENCRYPT"
+                    android:textColor="#33FFFFFF"
+                    android:textSize="8.0sp"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="2.0dip" />
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="1.0dip"
+                android:layout_height="28.0dip"
+                android:background="#22FFFFFF" />
+
+            <!-- Stat 3 -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="24/7"
+                    android:textColor="#00F0FF"
+                    android:textSize="14.0sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/acme"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SUPPORT"
+                    android:textColor="#33FFFFFF"
+                    android:textSize="8.0sp"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="2.0dip" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
     </LinearLayout>
-    
+
 </RelativeLayout>
