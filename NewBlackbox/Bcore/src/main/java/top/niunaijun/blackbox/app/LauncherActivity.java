@@ -6,6 +6,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.Nullable;
 
@@ -15,6 +17,10 @@ import top.niunaijun.blackbox.utils.Slog;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import android.view.animation.OvershootInterpolator;
 
 
@@ -25,6 +31,14 @@ public class LauncherActivity extends Activity {
     public static final String KEY_PKG = "launch_pkg";
     public static final String KEY_USER_ID = "launch_user_id";
     private boolean isRunning = false;
+    private final Handler clockHandler = new Handler(Looper.getMainLooper());
+    private final Runnable clockTicker = new Runnable() {
+        @Override
+        public void run() {
+            updateClockUI();
+            clockHandler.postDelayed(this, 1000L);
+        }
+    };
 
     public static void launch(Intent intent, int userId) {
         try {
@@ -92,6 +106,9 @@ public class LauncherActivity extends Activity {
             setContentView(R.layout.activity_launcher);
             ImageView iconView = findViewById(R.id.iv_icon);
             TextView nameView = findViewById(R.id.tv_app_name);
+            TextView clockView = findViewById(R.id.tv_time);
+            TextView dateView = findViewById(R.id.tv_date);
+            TextView loadingCaptionView = findViewById(R.id.tv_loading_caption);
             if (nameView != null) {
                 nameView.setText(appName);
                 nameView.setAlpha(0f);
@@ -101,6 +118,20 @@ public class LauncherActivity extends Activity {
                     .setStartDelay(200)
                     .start();
             }
+            if (clockView != null) {
+                clockView.setAlpha(0f);
+                clockView.animate().alpha(1f).setDuration(400).setStartDelay(100).start();
+            }
+            if (dateView != null) {
+                dateView.setAlpha(0f);
+                dateView.animate().alpha(1f).setDuration(500).setStartDelay(200).start();
+            }
+            if (loadingCaptionView != null) {
+                loadingCaptionView.animate().alpha(0.55f).setDuration(700).withEndAction(() ->
+                    loadingCaptionView.animate().alpha(1f).setDuration(700).start()).start();
+            }
+            startClockTicker();
+
             if (iconView != null && drawable != null) {
                 iconView.setImageDrawable(drawable);
                 iconView.setScaleX(0.7f);
@@ -201,10 +232,33 @@ public class LauncherActivity extends Activity {
         }, "AppLaunchThread").start();
     }
 
+    private void startClockTicker() {
+        clockHandler.removeCallbacks(clockTicker);
+        clockTicker.run();
+    }
+
+    private void stopClockTicker() {
+        clockHandler.removeCallbacks(clockTicker);
+    }
+
+    private void updateClockUI() {
+        TextView clockView = findViewById(R.id.tv_time);
+        TextView dateView = findViewById(R.id.tv_date);
+        Date now = new Date();
+        if (clockView != null) {
+            clockView.setText(new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(now));
+        }
+        if (dateView != null) {
+            dateView.setText(new SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault()).format(now));
+        }
+    }
+
+
     @Override
     protected void onPause() {
         super.onPause();
         isRunning = true;
+        stopClockTicker();
     }
 
     @Override
@@ -212,6 +266,14 @@ public class LauncherActivity extends Activity {
         super.onResume();
         if (isRunning) {
             finish();
+            return;
         }
+        startClockTicker();
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopClockTicker();
+        super.onDestroy();
     }
 }
