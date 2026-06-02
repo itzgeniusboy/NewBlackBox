@@ -64,12 +64,6 @@ import top.niunaijun.blackbox.utils.provider.ProviderCall;
 import top.niunaijun.blackbox.utils.StackTraceFilter;
 import top.niunaijun.blackbox.utils.StoragePermissionHelper;
 import top.niunaijun.blackbox.utils.LogSender;
-// ===== NAYA IMPORT =====
-import top.niunaijun.blackbox.game.GameProtectionManager;
-// ===== NAYA IMPORTS =====
-import top.niunaijun.blackbox.security.SdkProtectionManager;
-import top.niunaijun.blackbox.security.GameIntegrityGuard;
-// ========================
 // ===== VBOX-SDK FEATURES =====
 import top.niunaijun.blackbox.fake.frameworks.BXposedManager;
 import top.niunaijun.blackbox.entity.pm.InstalledModule;
@@ -122,9 +116,6 @@ public class BlackBoxCore extends ClientConfiguration {
     private String mCurrentAppPackage = null;
     private boolean mIsSandboxedEnvironment = false;
     
-    // ===== NAYA FIELD =====
-    private GameProtectionManager mGameProtection;
-    // ======================
 
     public static BlackBoxCore get() {
         return sBlackBoxCore;
@@ -183,71 +174,6 @@ public class BlackBoxCore extends ClientConfiguration {
         return mIsSandboxedEnvironment;
     }
 
-    // ===== GAME PROTECTION PUBLIC API =====
-    
-    public void enableGameProtection(boolean enabled) {
-        if (mGameProtection != null) {
-            mGameProtection.setEnabled(enabled);
-        }
-    }
-    
-    public boolean isGameProtectionEnabled() {
-        return mGameProtection != null && mGameProtection.isEnabled();
-    }
-    
-    public void protectGame(String packageName) {
-        if (mGameProtection != null) {
-            mGameProtection.protectGame(packageName);
-        }
-    }
-    
-    public void unprotectGame(String packageName) {
-        if (mGameProtection != null) {
-            mGameProtection.unprotectGame(packageName);
-        }
-    }
-    
-    public Set<String> getProtectedGames() {
-        if (mGameProtection != null) {
-            return mGameProtection.getProtectedGames();
-        }
-        return new HashSet<>();
-    }
-    
-    public Set<String> getDetectedGames() {
-        if (mGameProtection != null) {
-            return mGameProtection.getDetectedGames();
-        }
-        return new HashSet<>();
-    }
-    
-    public boolean isGame(String packageName) {
-        if (mGameProtection != null) {
-            return mGameProtection.isGame(packageName);
-        }
-        return false;
-    }
-    
-    public void scanForGames() {
-        if (mGameProtection != null) {
-            mGameProtection.scanForGames();
-        }
-    }
-    
-    public boolean shouldBlockKill(String packageName) {
-        if (mGameProtection != null) {
-            return mGameProtection.shouldBlockKill(packageName);
-        }
-        return false;
-    }
-    
-    public void onGameCrashed(String packageName, Throwable error) {
-        if (mGameProtection != null) {
-            mGameProtection.onGameCrashed(packageName, error);
-        }
-    }
-    
-    // ======================================
 
     public int resolveUidForOperation(int originalUid, String operation) {
         try {
@@ -1024,15 +950,6 @@ public class BlackBoxCore extends ClientConfiguration {
         
         installSystemHooks();
         
-        // ===== SDK PROTECTION INIT =====
-        try {
-            SdkProtectionManager.getInstance().initialize(sContext);
-            SdkProtectionManager.getInstance().setEnabled(true);
-            Slog.i(TAG, "SDK Protection initialized and enabled");
-        } catch (Exception e) {
-            Slog.w(TAG, "SDK Protection init failed: " + e.getMessage());
-        }
-        // ================================
         
         long startTime = System.currentTimeMillis();
         long maxInitTime = 10000; 
@@ -1166,13 +1083,6 @@ public class BlackBoxCore extends ClientConfiguration {
     public boolean launchApk(String packageName, int userId) {
         onBeforeMainLaunchApk(packageName, userId);
         
-        // ===== SDK PROTECTION FOR GAMES =====
-        if (GameProtectionManager.getInstance().isGame(packageName)) {
-            SdkProtectionManager.getInstance().onGameLaunch(packageName);
-            GameIntegrityGuard.getInstance().startMonitoring(packageName);
-            Slog.i(TAG, "SDK Protection activated for game: " + packageName);
-        }
-        // =====================================
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!hasAllFilesAccess()) {
@@ -2468,16 +2378,4 @@ public class BlackBoxCore extends ClientConfiguration {
         return sb.toString();
     }
     
-    // ===== LAST MEIN YEH METHOD ADD KARO =====
-    
-    private void initGameProtection() {
-        try {
-            mGameProtection = GameProtectionManager.getInstance();
-            mGameProtection.initialize(sContext);
-            Slog.i(TAG, "Game Protection System initialized successfully");
-        } catch (Exception e) {
-            Slog.e(TAG, "Failed to initialize Game Protection: " + e.getMessage());
-            mGameProtection = null;
-        }
-    }
 }

@@ -531,6 +531,10 @@ static uint32_t *FastAllocateTrampoline() {
 
 A64_JNIEXPORT void *A64HookFunctionV(void *const symbol, void *const replace,
                                      void *const rwx, const uintptr_t rwx_size) {
+    if (symbol == NULL || replace == NULL) {
+        A64_LOGE("refusing to hook NULL symbol=%p replace=%p", symbol, replace);
+        return NULL;
+    }
     static constexpr uint_fast64_t mask = 0x03ffffffu; // 0b00000011111111111111111111111111
 
     uint32_t *trampoline = static_cast<uint32_t *>(rwx), *original = static_cast<uint32_t *>(symbol);
@@ -594,6 +598,11 @@ A64_JNIEXPORT void *A64HookFunctionV(void *const symbol, void *const replace,
 //-------------------------------------------------------------------------
 
 A64_JNIEXPORT void A64HookFunction(void *const symbol, void *const replace, void **result) {
+    if (symbol == NULL || replace == NULL) {
+        A64_LOGE("refusing to hook NULL symbol=%p replace=%p", symbol, replace);
+        if (result != NULL) *result = NULL;
+        return;
+    }
     void *trampoline = NULL;
     if (result != NULL) {
         trampoline = FastAllocateTrampoline();
